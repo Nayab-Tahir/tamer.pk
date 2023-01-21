@@ -12,6 +12,8 @@ const initialState = {
   userId: localStorage.getItem('sub'),
   auth_token: localStorage.getItem('auth_token'),
   loading: false,
+  sidebarShow: true,
+  sidebarFolded: false,
 }
 
 const Main = createSlice({
@@ -61,8 +63,24 @@ const Main = createSlice({
       localStorage.clear()
       state = initialState /// clone this deeply with lodash later
     },
+
+    setSidebarShow(state, action) {
+      state.sidebarShow = action.payload
+    },
+
+    setSidebarFolded(state, action) {
+      state.sidebarFolded = action.payload
+    },
   },
 })
 
-export const { UpdateCredentials, saveToken, setLoading, saveInformation, logout } = Main.actions
+export const {
+  UpdateCredentials,
+  saveToken,
+  setLoading,
+  saveInformation,
+  logout,
+  setSidebarShow,
+  setSidebarFolded,
+} = Main.actions
 export const MainReducer = Main.reducer
