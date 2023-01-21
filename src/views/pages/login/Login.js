@@ -11,6 +11,7 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
+  CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
@@ -18,11 +19,13 @@ import { Formik } from 'formik'
 import { loginSchema } from './login-schema'
 import { useLoginMutation } from 'src/store/rtk-query'
 import { useDispatch } from 'react-redux'
-import { setLoading, saveToken } from 'src/store/slices/main'
+import { setLoading, saveToken, saveInformation } from 'src/store/slices/main'
 import { useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 
 const Login = () => {
   const [login, loginResult] = useLoginMutation()
+  const loadingState = useSelector((state) => state.main.loading)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const initialValues = {
@@ -40,6 +43,7 @@ const Login = () => {
       if (response && response.access_token) {
         actions.resetForm()
         dispatch(saveToken(response.access_token))
+        dispatch(saveInformation(response))
         navigate('/dashboard')
         dispatch(setLoading(false))
       }
@@ -65,7 +69,7 @@ const Login = () => {
                   >
                     {({ handleBlur, handleChange, values, errors, touched, handleSubmit }) => (
                       <CForm onSubmit={handleSubmit}>
-                        <h1>Login</h1>
+                        <h1 className="text-center">Login</h1>
                         <p className="text-medium-emphasis">Sign In to your account</p>
                         <CInputGroup className="mb-3">
                           <CInputGroupText>
@@ -81,7 +85,7 @@ const Login = () => {
                           />
                         </CInputGroup>
                         {touched.email && errors.email && (
-                          <div className="mt-2 text-danger">{errors.email}</div>
+                          <div className="mt-2 text-danger mb-2">{errors.email}</div>
                         )}
                         <CInputGroup className="mb-4">
                           <CInputGroupText>
@@ -98,11 +102,14 @@ const Login = () => {
                           />
                         </CInputGroup>
                         {touched.password && errors.password && (
-                          <div className="mt-2 text-danger">{errors.password}</div>
+                          <div className="mt-2 text-danger mb-2">{errors.password}</div>
                         )}
                         <CRow>
-                          <CCol xs={6}>
+                          <CCol xs={6} className="text-left">
                             <CButton color="primary" className="px-4" type="submit">
+                              {loadingState && (
+                                <CSpinner color="warning" size="sm" className="me-2" />
+                              )}
                               Login
                             </CButton>
                           </CCol>

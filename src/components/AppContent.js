@@ -1,13 +1,20 @@
 import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { CContainer, CSpinner } from '@coreui/react'
+import { useSelector } from 'react-redux'
 
 // routes config
 import routes from '../routes'
 
 const AppContent = () => {
+  const loadingState = useSelector((state) => state.main.loading)
   return (
     <CContainer lg>
+      {loadingState && (
+        <div className="text-center mt-2 mb-2">
+          <CSpinner color="primary" size="large" />
+        </div>
+      )}
       <Suspense fallback={<CSpinner color="primary" />}>
         <Routes>
           {routes.map((route, idx) => {
