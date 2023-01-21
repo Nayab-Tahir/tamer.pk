@@ -58,7 +58,7 @@ import { useGetAllUsersQuery } from '../../store/rtk-query/index'
 
 const Dashboard = () => {
   const state = useSelector((state) => state)
-  const { data: users, isFetching, isLoading, refetch } = useGetAllUsersQuery()
+  const { data: users, isFetching, isLoading } = useGetAllUsersQuery()
   const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
   console.log('USERS: ', users)
   const progressExample = [
