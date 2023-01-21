@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './scss/style.scss'
 import { Provider } from 'react-redux'
 import { store } from './store/index'
+import 'react-toastify/dist/ReactToastify.css'
+import { ToastContainer } from 'react-toastify'
 
 const loading = (
   <div className="pt-3 text-center">
@@ -33,6 +35,7 @@ function App() {
           </Routes>
         </Suspense>
       </BrowserRouter>
+      <ToastContainer theme="colored" pauseOnHover={false} />
     </Provider>
   )
 }

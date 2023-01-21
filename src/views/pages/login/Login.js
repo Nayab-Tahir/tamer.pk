@@ -22,6 +22,7 @@ import { useDispatch } from 'react-redux'
 import { setLoading, saveToken, saveInformation } from 'src/store/slices/main'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
 
 const Login = () => {
   const [login, loginResult] = useLoginMutation()
@@ -45,6 +46,7 @@ const Login = () => {
         dispatch(saveToken(response.access_token))
         dispatch(saveInformation(response))
         navigate('/dashboard')
+        toast.success('Logged In.')
         dispatch(setLoading(false))
       }
       dispatch(setLoading(false))
@@ -52,7 +54,6 @@ const Login = () => {
       dispatch(setLoading(false))
       console.error('LOGIN(): ', error)
     }
-    console.log('VALUES: ', values)
   }
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">

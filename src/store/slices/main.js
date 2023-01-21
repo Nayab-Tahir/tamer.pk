@@ -1,15 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  name: '',
-  username: '',
-  email: '',
-  phone: '',
+  name: localStorage.getItem('name'),
+  username: localStorage.getItem('username'),
+  email: localStorage.getItem('email'),
+  phone: localStorage.getItem('phone'),
   address: {
-    street: '',
-    country: '',
+    street: localStorage.getItem('street'),
+    country: localStorage.getItem('country'),
   },
-  userId: '',
+  userId: localStorage.getItem('sub'),
   auth_token: localStorage.getItem('auth_token'),
   loading: false,
 }
@@ -31,20 +31,38 @@ const Main = createSlice({
     },
 
     saveInformation(state, action) {
+      localStorage.setItem('username', action.payload.username)
+      localStorage.setItem('email', action.payload.email)
+      localStorage.setItem('phone', action.payload.phone)
+      localStorage.setItem('sub', action.payload.sub)
+      localStorage.setItem('name', action.payload.name)
       state.username = action.payload.username
       state.email = action.payload.email
       state.phone = action.payload.phone
       state.userId = action.payload.sub
       state.name = action.payload.name
       if (action.payload.address && Object.keys(action.payload.address).length > 0) {
+        localStorage.setItem(
+          'street',
+          action.payload.address.street && action.payload.address.street,
+        )
+        localStorage.setItem(
+          'country',
+          action.payload.address.country && action.payload.address.country,
+        )
         state.address = {
           ...state.address,
           ...action.payload.address,
         }
       }
     },
+
+    logout(state, action) {
+      localStorage.clear()
+      state = initialState /// clone this deeply with lodash later
+    },
   },
 })
 
-export const { UpdateCredentials, saveToken, setLoading, saveInformation } = Main.actions
+export const { UpdateCredentials, saveToken, setLoading, saveInformation, logout } = Main.actions
 export const MainReducer = Main.reducer
