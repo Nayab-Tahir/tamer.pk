@@ -53,10 +53,14 @@ import avatar6 from 'src/assets/images/avatars/6.jpg'
 
 import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
+import { useSelector } from 'react-redux'
+import { useGetAllUsersQuery } from '../../store/rtk-query/index'
 
 const Dashboard = () => {
+  const state = useSelector((state) => state)
+  const { data: users, isFetching, isLoading, refetch } = useGetAllUsersQuery()
   const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
-
+  console.log('USERS: ', users)
   const progressExample = [
     { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
     { title: 'Unique', value: '24.093 Users', percent: 20, color: 'info' },
@@ -177,9 +181,14 @@ const Dashboard = () => {
       activity: 'Last week',
     },
   ]
-
+  const data = {
+    total: 11,
+    running: 2,
+  }
   return (
     <>
+      <div>{!isLoading && users.length}</div>
+      <div>{data.running}</div>
       <WidgetsDropdown />
       <CCard className="mb-4">
         <CCardBody>

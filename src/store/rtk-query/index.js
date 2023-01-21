@@ -25,7 +25,7 @@ export const BaseApi = createApi({
     }),
 
     getAllUsers: builder.query({
-      query: () => 'user/all',
+      query: () => `user/all`,
     }),
   }),
 })
