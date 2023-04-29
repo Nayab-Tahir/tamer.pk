@@ -12,6 +12,8 @@ import {
   cilPuzzle,
   cilSpeedometer,
   cilStar,
+  cilPaint,
+  cilCasino,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -32,15 +34,23 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Colors',
+    name: 'Completed Projects',
     to: '/theme/colors',
-    icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilPaint} customClassName="nav-icon" />,
+    disabled: true,
   },
   {
     component: CNavItem,
-    name: 'Typography',
+    name: 'Running Projects',
     to: '/theme/typography',
-    icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilCasino} customClassName="nav-icon" />,
+    disabled: true,
+  },
+  {
+    component: CNavItem,
+    name: 'AddProject',
+    to: '/addProject',
+    icon: <CIcon icon={cilCasino} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,

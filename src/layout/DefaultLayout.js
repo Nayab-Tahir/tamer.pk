@@ -6,17 +6,17 @@ import { toast } from 'react-toastify'
 const DefaultLayout = () => {
   const navigate = useNavigate()
 
-  // useEffect(() => {
-  //   if (
-  //     localStorage.getItem('auth_token') == null ||
-  //     localStorage.getItem('sub') == null ||
-  //     localStorage.getItem('email') == null ||
-  //     localStorage.getItem('username') == null
-  //   ) {
-  //     navigate('/login')
-  //     toast.error('You are not authenticated, please login first!')
-  //   }
-  // }, [])
+  useEffect(() => {
+    // if (
+    //   localStorage.getItem('auth_token') == null ||
+    //   localStorage.getItem('sub') == null ||
+    //   localStorage.getItem('email') == null ||
+    //   localStorage.getItem('username') == null
+    // ) {
+    //   navigate('/login')
+    //   toast.error('You are not authenticated, please login first!')
+    // }
+  }, [])
   return (
     <div>
       <AppSidebar />

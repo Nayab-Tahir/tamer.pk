@@ -1,10 +1,10 @@
 import React from 'react'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
+const AddProject = React.lazy(() => import('./views/addProject/AddProject'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
-// Base
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 const Cards = React.lazy(() => import('./views/base/cards/Cards'))
@@ -54,6 +54,7 @@ const page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home', element: Dashboard },
+  { path: '/addProject', name: 'AddProject', element: AddProject, exact: true },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard, exact: true },
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },

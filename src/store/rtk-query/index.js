@@ -5,6 +5,7 @@ export const BaseApi = createApi({
   reducerPath: 'baseApi',
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_API_URL,
+    // baseUrl: 'http://localhost:3000',
     prepareHeaders: (headers, { getState }) => {
       const token = getState().main.auth_token
       // If we have a token set in state, let's assume that we should be passing it.
