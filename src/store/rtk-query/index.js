@@ -28,9 +28,17 @@ export const BaseApi = createApi({
     getAllUsers: builder.query({
       query: () => `user/all`,
     }),
+
+    createProject: builder.mutation({
+      query: (patch) => ({
+        url: `project/create`,
+        method: 'POST',
+        body: patch,
+      }),
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useLoginMutation, useGetAllUsersQuery } = BaseApi
+export const { useLoginMutation, useGetAllUsersQuery, useCreateProjectMutation } = BaseApi

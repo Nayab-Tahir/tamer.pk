@@ -34,8 +34,8 @@ const Login = () => {
     password: '',
   }
   const handleSubmit = async (values, actions) => {
+    dispatch(setLoading(true))
     try {
-      dispatch(setLoading(true))
       const response = await login({
         email: values.email,
         password: values.password,
@@ -47,13 +47,11 @@ const Login = () => {
         dispatch(saveInformation(response))
         navigate('/dashboard')
         toast.success('Logged In.')
-        dispatch(setLoading(false))
       }
-      dispatch(setLoading(false))
     } catch (error) {
-      dispatch(setLoading(false))
       console.error('LOGIN(): ', error)
     }
+    dispatch(setLoading(false))
   }
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
