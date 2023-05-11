@@ -29,6 +29,18 @@ export const BaseApi = createApi({
       query: () => `user/all`,
     }),
 
+    getSingleUser: builder.query({
+      query: (id) => `user/${id}`,
+    }),
+
+    updateSingleUser: builder.mutation({
+      query: ({ id, ...patch }) => ({
+        url: `user/update/${id}`,
+        method: 'PATCH',
+        body: patch,
+      }),
+    }),
+
     createProject: builder.mutation({
       query: (patch) => ({
         url: `project/create`,
@@ -36,9 +48,78 @@ export const BaseApi = createApi({
         body: patch,
       }),
     }),
+
+    getAllProjectsByUserId: builder.query({
+      query: (id) => `project/all/${id}`,
+    }),
+
+    getSingleProject: builder.query({
+      query: (id) => `project/${id}`,
+    }),
+
+    updateSingleProject: builder.mutation({
+      query: ({ id, ...patch }) => ({
+        url: `project/update/${id}`,
+        method: 'PATCH',
+        body: patch,
+      }),
+    }),
+
+    deleteSingleProject: builder.mutation({
+      query: (id) => ({
+        url: `project/delete/${id}`,
+        method: 'DELETE',
+      }),
+    }),
+
+    createDetailTracker: builder.mutation({
+      query: (patch) => ({
+        url: `details-tracker/create`,
+        method: 'POST',
+        body: patch,
+      }),
+    }),
+
+    getAllDetailTrackersByProjectId: builder.query({
+      query: (id) => `details-tracker/all/${id}`,
+    }),
+
+    getSingleDetailTracker: builder.query({
+      query: (id) => `details-tracker/${id}`,
+    }),
+
+    updateSingleDetailTracker: builder.mutation({
+      query: ({ id, ...patch }) => ({
+        url: `details-tracker/update/${id}`,
+        method: 'PATCH',
+        body: patch,
+      }),
+    }),
+
+    deleteSingleDetailTracker: builder.mutation({
+      query: (id) => ({
+        url: `details-tracker/delete/${id}`,
+        method: 'DELETE',
+      }),
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useLoginMutation, useGetAllUsersQuery, useCreateProjectMutation } = BaseApi
+export const {
+  useLoginMutation,
+  useGetAllUsersQuery,
+  useCreateProjectMutation,
+  useGetSingleProjectQuery,
+  useGetSingleUserQuery,
+  useUpdateSingleProjectMutation,
+  useUpdateSingleUserMutation,
+  useDeleteSingleProjectMutation,
+  useGetAllProjectsByUserIdQuery,
+  useGetAllDetailTrackersByProjectIdQuery,
+  useGetSingleDetailTrackerQuery,
+  useUpdateSingleDetailTrackerMutation,
+  useDeleteSingleDetailTrackerMutation,
+  useCreateDetailTrackerMutation,
+} = BaseApi

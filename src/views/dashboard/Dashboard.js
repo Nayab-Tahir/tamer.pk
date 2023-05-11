@@ -59,16 +59,20 @@ import completedProject from 'src/assets/images/completed_project.jpg'
 import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import { useSelector } from 'react-redux'
-import { useGetAllUsersQuery } from '../../store/rtk-query/index'
+import { useGetAllUsersQuery, useGetSingleProjectQuery } from '../../store/rtk-query/index'
 
 const Dashboard = () => {
   const state = useSelector((state) => state)
+  // const {
+  //   data: projectData,
+  //   isFetching,
+  //   isLoading,
+  // } = useGetSingleProjectQuery('645cb1409a60d0b734a08493')
   // const { data: users, isFetching, isLoading } = useGetAllUsersQuery()
   const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
   // console.log('USERS: ', users)
 
   ////////////////////////////////////// DUMMY DATA
-
   const projects = [
     {
       id: 1,
