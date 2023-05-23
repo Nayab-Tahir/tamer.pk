@@ -32,19 +32,27 @@ const _nav = [
     component: CNavTitle,
     name: 'MAIN',
   },
+
+  {
+    component: CNavItem,
+    name: 'All Projects',
+    to: '/allProjects',
+    icon: <CIcon icon={cilPaint} customClassName="nav-icon" />,
+    disabled: false,
+  },
   {
     component: CNavItem,
     name: 'Completed Projects',
-    to: '/theme/colors',
+    to: '/completedProjects',
     icon: <CIcon icon={cilPaint} customClassName="nav-icon" />,
-    disabled: true,
+    disabled: false,
   },
   {
     component: CNavItem,
     name: 'Running Projects',
-    to: '/theme/typography',
+    to: '/runningProjects',
     icon: <CIcon icon={cilCasino} customClassName="nav-icon" />,
-    disabled: true,
+    disabled: false,
   },
   {
     component: CNavItem,

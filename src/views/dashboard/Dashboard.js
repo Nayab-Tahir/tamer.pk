@@ -60,9 +60,11 @@ import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import { useSelector } from 'react-redux'
 import { useGetAllUsersQuery, useGetSingleProjectQuery } from '../../store/rtk-query/index'
+import { useNavigate } from 'react-router-dom'
 
 const Dashboard = () => {
   const state = useSelector((state) => state)
+  const navigate = useNavigate()
   // const {
   //   data: projectData,
   //   isFetching,
@@ -400,7 +402,11 @@ const Dashboard = () => {
                 </CProgress>
               </div>
               <div className="text-center">
-                <CButton color="success" variant="outline">
+                <CButton
+                  color="success"
+                  variant="outline"
+                  onClick={() => navigate('/runningProjects')}
+                >
                   Show All
                 </CButton>
                 <div>
@@ -442,7 +448,11 @@ const Dashboard = () => {
                 </tr>
               </CTable>
               <div className="text-center">
-                <CButton color="success" variant="outline">
+                <CButton
+                  color="success"
+                  variant="outline"
+                  onClick={() => navigate('/completedProjects')}
+                >
                   Show All
                 </CButton>
                 <div>

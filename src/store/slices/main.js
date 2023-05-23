@@ -14,6 +14,7 @@ const initialState = {
   loading: false,
   sidebarShow: true,
   sidebarFolded: false,
+  currentProject: {},
 }
 
 const Main = createSlice({
@@ -71,6 +72,10 @@ const Main = createSlice({
     setSidebarFolded(state, action) {
       state.sidebarFolded = action.payload
     },
+
+    setCurrentProject(state, action) {
+      state.currentProject = action.payload
+    },
   },
 })
 
@@ -82,5 +87,6 @@ export const {
   logout,
   setSidebarShow,
   setSidebarFolded,
+  setCurrentProject,
 } = Main.actions
 export const MainReducer = Main.reducer
