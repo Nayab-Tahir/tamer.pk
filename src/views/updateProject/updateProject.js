@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { CForm, CCol, CFormInput, CButton, CCard, CCardBody } from '@coreui/react'
 import { Formik } from 'formik'
 import { updateProjectSchema } from './updateProject.schema'
@@ -6,13 +6,18 @@ import { useNavigate } from 'react-router-dom'
 import { useUpdateSingleProjectMutation } from 'src/store/rtk-query'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
-import { setLoading } from 'src/store/slices/main'
+import { setLoading, setRefetchProjects } from 'src/store/slices/main'
 
 const UpdateProject = () => {
   const navigation = useNavigate()
   const [updateProject, updateProjectResponse] = useUpdateSingleProjectMutation()
   const dispatch = useDispatch()
   const state = useSelector((state) => state.main)
+  useEffect(() => {
+    if (state.currentProject == undefined || Object.keys(state.currentProject).length === 0) {
+      navigation('/allProjects')
+    }
+  })
   const initialValues = {
     projectName: state.currentProject?.name ?? '',
     projectArea: state.currentProject?.area ?? '',
@@ -53,6 +58,7 @@ const UpdateProject = () => {
       }).unwrap()
       if (response) {
         actions.resetForm()
+        dispatch(setRefetchProjects(true))
         navigation('/allProjects')
         toast.success(`${response.name || ''} Project is updated.`)
       } else {

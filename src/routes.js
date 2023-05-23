@@ -6,6 +6,7 @@ const AllProjects = React.lazy(() => import('./views/allProjects/allProjects'))
 const CompletedProjects = React.lazy(() => import('./views/completedProjects/completedProjects'))
 const RunningProjects = React.lazy(() => import('./views/runningProjects/runningProjects'))
 const UpdateProject = React.lazy(() => import('./views/updateProject/updateProject'))
+const ShowProject = React.lazy(() => import('./views/projectDetails/projectDetails'))
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -72,6 +73,12 @@ const routes = [
     path: '/updateProject',
     name: 'Update Project',
     element: UpdateProject,
+    exact: true,
+  },
+  {
+    path: '/showProject',
+    name: 'Show Project',
+    element: ShowProject,
     exact: true,
   },
   { path: '/runningProjects', name: 'Running Projects', element: RunningProjects, exact: true },

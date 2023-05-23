@@ -48,7 +48,7 @@ const AddProject = () => {
       }).unwrap()
       if (response) {
         actions.resetForm()
-        navigation('/dashboard')
+        navigation('/allProjects')
         toast.success(`${response.name || ''} Project is created.`)
       } else {
         toast.error('Something went wrong please try again later!')

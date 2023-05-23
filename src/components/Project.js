@@ -10,60 +10,83 @@ import {
   CTable,
 } from '@coreui/react'
 import { useGetAllProjectsByUserIdQuery } from 'src/store/rtk-query'
-import { setCurrentProject, setLoading } from 'src/store/slices/main'
+import { setCurrentProject, setLoading, setRefetchProjects } from 'src/store/slices/main'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 const Projects = ({ status }) => {
   const dispatch = useDispatch()
-  const userId = useSelector((state) => state.main.userId)
+  const state = useSelector((state) => state.main)
   const navigate = useNavigate()
-  const { data: allProjects = [], isLoading, isFetching } = useGetAllProjectsByUserIdQuery(userId)
-  useEffect(() => {})
+  const {
+    data: allProjects = [],
+    isLoading,
+    isFetching,
+    refetch: refetchProjects,
+  } = useGetAllProjectsByUserIdQuery(state.userId)
+  useEffect(() => {
+    if (state.refetchProjects === true) {
+      refetchProjects()
+      dispatch(setRefetchProjects(false))
+    }
+  })
   const showProject = (project) => {
     dispatch(setCurrentProject(project))
-    navigate('/updateProject')
+    navigate('/showProject')
   }
   const renderProjects = () => {
     dispatch(setLoading(false))
-    return allProjects
-      .filter((project) => {
-        if (status === 'COMPLETED') {
-          if (project.status === 'COMPLETED') return project
-        }
-        if (status === 'ACTIVE') {
-          if (project.status === 'ACTIVE') return project
-        }
-        if (status === 'ALL') return project
-        return false
-      })
-      .map((project, key) => (
-        <CCard className="mb-3" key={key} onClick={() => showProject(project)}>
-          {/* <CCardImage orientation="top" src={completedProject} /> */}
-          <CCardBody>
-            {/* <CCardTitle>Completed Projects</CCardTitle> */}
-            <CCardText>{project.description}</CCardText>
-            <CTable borderless>
-              <tr>
-                <td>Revenue</td>
-                <td>Rs. {project.revenue}</td>
-              </tr>
-              <tr>
-                <td>Estimated Cost</td>
-                <td>Rs. {project.estimatedCost}</td>
-              </tr>
-              <tr>
-                <td>Profit</td>
-                <td>Rs. {project.profit}</td>
-              </tr>
-              <tr>
-                <td>Estimated Time</td>
-                <td>{project.estimatedDays} days</td>
-              </tr>
-            </CTable>
-          </CCardBody>
-        </CCard>
-      ))
+    const handleNoFilteredProjects = () => {
+      if (status === 'COMPLETED') {
+        return 'No completed projects soo far!'
+      }
+      if (status === 'ACTIVE') {
+        return 'No active projects soo far!'
+      }
+      if (status === 'ALL') {
+        return 'No projects soo far!'
+      }
+    }
+
+    const filteredProject = allProjects.filter((project) => {
+      if (status === 'COMPLETED') {
+        if (project.status === 'COMPLETED') return project
+      }
+      if (status === 'ACTIVE') {
+        if (project.status === 'ACTIVE') return project
+      }
+      if (status === 'ALL') return project
+      return false
+    })
+    return filteredProject.length > 0
+      ? filteredProject.map((project, key) => (
+          <CCard className="mb-3" key={key} onClick={() => showProject(project)}>
+            {/* <CCardImage orientation="top" src={completedProject} /> */}
+            <CCardBody>
+              {/* <CCardTitle>Completed Projects</CCardTitle> */}
+              <CCardText>{project.description}</CCardText>
+              <CTable borderless>
+                <tr>
+                  <td>Revenue</td>
+                  <td>Rs. {project.revenue}</td>
+                </tr>
+                <tr>
+                  <td>Estimated Cost</td>
+                  <td>Rs. {project.estimatedCost}</td>
+                </tr>
+                <tr>
+                  <td>Profit</td>
+                  <td>Rs. {project.profit}</td>
+                </tr>
+                <tr>
+                  <td>Estimated Time</td>
+                  <td>{project.estimatedDays} days</td>
+                </tr>
+              </CTable>
+            </CCardBody>
+          </CCard>
+        ))
+      : handleNoFilteredProjects()
   }
   const handleLoadingState = () => {
     dispatch(setLoading(true))

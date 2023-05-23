@@ -15,6 +15,7 @@ const initialState = {
   sidebarShow: true,
   sidebarFolded: false,
   currentProject: {},
+  refetchProjects: false,
 }
 
 const Main = createSlice({
@@ -76,6 +77,9 @@ const Main = createSlice({
     setCurrentProject(state, action) {
       state.currentProject = action.payload
     },
+    setRefetchProjects(state, action) {
+      state.refetchProjects = action.payload
+    },
   },
 })
 
@@ -88,5 +92,6 @@ export const {
   setSidebarShow,
   setSidebarFolded,
   setCurrentProject,
+  setRefetchProjects,
 } = Main.actions
 export const MainReducer = Main.reducer
