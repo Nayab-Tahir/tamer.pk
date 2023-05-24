@@ -16,6 +16,7 @@ const initialState = {
   sidebarFolded: false,
   currentProject: {},
   refetchProjects: false,
+  currentDetailsTracker: {},
 }
 
 const Main = createSlice({
@@ -77,8 +78,13 @@ const Main = createSlice({
     setCurrentProject(state, action) {
       state.currentProject = action.payload
     },
+
     setRefetchProjects(state, action) {
       state.refetchProjects = action.payload
+    },
+
+    setCurrentDetailTracker(state, action) {
+      state.currentDetailsTracker = action.payload
     },
   },
 })
@@ -93,5 +99,6 @@ export const {
   setSidebarFolded,
   setCurrentProject,
   setRefetchProjects,
+  setCurrentDetailTracker,
 } = Main.actions
 export const MainReducer = Main.reducer
