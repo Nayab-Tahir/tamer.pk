@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import {
-  CAvatar,
   CButton,
   CCard,
   CCardBody,
-  CCardImage,
   CCardTitle,
   CCardText,
   CTable,
@@ -14,19 +12,44 @@ import {
   CModalHeader,
   CModalTitle,
   CModalBody,
-  CModalFooter,
+  CForm,
+  CCol,
+  CFormInput,
 } from '@coreui/react'
-import { useDeleteSingleProjectMutation } from 'src/store/rtk-query'
+import {
+  useDeleteSingleProjectMutation,
+  useCreateDetailTrackerMutation,
+  useUpdateSingleDetailTrackerMutation,
+  useDeleteSingleDetailTrackerMutation,
+  useGetAllDetailTrackersByProjectIdQuery,
+} from 'src/store/rtk-query'
 import CIcon from '@coreui/icons-react'
 import { cilTrash, cilPencil } from '@coreui/icons'
 import { toast } from 'react-toastify'
-import { setCurrentProject, setRefetchProjects } from 'src/store/slices/main'
+import {
+  setCurrentDetailTracker,
+  setCurrentProject,
+  setLoading,
+  setRefetchProjects,
+} from 'src/store/slices/main'
+import { Formik } from 'formik'
+import { detailsTrackerSchema } from './detailTracker.schema'
+import DetailTracker from 'src/components/DetailTracker'
 
 const ProjectDetails = () => {
   const navigate = useNavigate()
   const state = useSelector((state) => state.main)
   const dispatch = useDispatch()
   const [deleteProject] = useDeleteSingleProjectMutation()
+  const [createDetailTracker] = useCreateDetailTrackerMutation()
+  const [updateDetailTracker] = useUpdateSingleDetailTrackerMutation()
+  const [deleteDetailTracker] = useDeleteSingleDetailTrackerMutation()
+  const {
+    data: detailTrackers,
+    isLoading: detailTrackersLoading,
+    isFetching: detailTrackersFetching,
+    refetch: detailTrackersRefetch,
+  } = useGetAllDetailTrackersByProjectIdQuery(state.currentProject._id)
   const [showDetailsTrackerModal, setShowDetailsTrackerModal] = useState(false)
   const [isDetailTrackerUpdating, setIsDetailTrackerUpdating] = useState(false)
 
@@ -53,6 +76,85 @@ const ProjectDetails = () => {
 
   const updateProjectHandle = async () => {
     navigate('/updateProject')
+  }
+
+  const handleDeleteDetailTracker = async (detailTracker) => {
+    try {
+      const response = await deleteDetailTracker(detailTracker._id)
+      if (response) {
+        toast.success('Project details object is deleted')
+      }
+    } catch (error) {
+      console.error('Something went wrong: ', error)
+      toast.error('Something went wrong, please try again later!')
+    }
+  }
+  const handleUpdateDetailTracker = (detailTracker) => {
+    dispatch(setCurrentDetailTracker(detailTracker))
+    setIsDetailTrackerUpdating(true)
+    setShowDetailsTrackerModal(true)
+  }
+
+  const handleSubmit = async (values, actions) => {
+    dispatch(setLoading(true))
+    try {
+      let response = {}
+
+      if (isDetailTrackerUpdating) {
+        response = await updateDetailTracker({
+          completionPercentage: values.completionPercentage,
+          profit: values.profit,
+          cost: values.cost,
+          revenue: values.revenue,
+          description: values.description,
+          numberOfDays: values.numberOfDays,
+          id: state.currentDetailsTracker._id,
+        }).unwrap()
+      } else {
+        response = await createDetailTracker({
+          completionPercentage: values.completionPercentage,
+          profit: values.profit,
+          cost: values.cost,
+          revenue: values.revenue,
+          description: values.description,
+          numberOfDays: values.numberOfDays,
+          projectId: state.currentProject._id,
+        }).unwrap()
+      }
+      if (response) {
+        actions.resetForm()
+        toast.success(`Project details are ${isDetailTrackerUpdating ? 'Updated' : 'Added'}.`)
+        setShowDetailsTrackerModal(false)
+      } else {
+        toast.error('Something went wrong please try again later!')
+        actions.resetForm()
+        setShowDetailsTrackerModal(false)
+      }
+    } catch (e) {
+      console.error('Something went wrong: ', e)
+      toast.error('Something went wrong please try again later!')
+      setShowDetailsTrackerModal(false)
+      actions.resetForm()
+    }
+    dispatch(setLoading(false))
+  }
+
+  const addInitialValues = {
+    completionPercentage: 0,
+    profit: 0,
+    cost: 0,
+    revenue: 0,
+    description: '',
+    numberOfDays: 0,
+  }
+
+  const updateInitialValues = {
+    completionPercentage: state.currentDetailsTracker.completionPercentage,
+    profit: state.currentDetailsTracker.profit,
+    cost: state.currentDetailsTracker.cost,
+    revenue: state.currentDetailsTracker.revenue,
+    description: state.currentDetailsTracker.description,
+    numberOfDays: state.currentDetailsTracker.numberOfDays,
   }
 
   return (
@@ -107,17 +209,117 @@ const ProjectDetails = () => {
           </div>
         </CCardBody>
       </CCard>
+      {!detailTrackersLoading &&
+        !detailTrackersFetching &&
+        detailTrackers.map((detailTracker, index) => (
+          <DetailTracker
+            key={index}
+            detailTracker={detailTracker}
+            onUpdate={handleUpdateDetailTracker}
+            onDelete={handleDeleteDetailTracker}
+            onClick={() => dispatch(setCurrentDetailTracker(detailTracker))}
+          />
+        ))}
       <CModal visible={showDetailsTrackerModal}>
         <CModalHeader>
           <CModalTitle>{isDetailTrackerUpdating ? 'Update' : 'Add'} Details</CModalTitle>
         </CModalHeader>
-        <CModalBody>React Modal body text goes here.</CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setShowDetailsTrackerModal(false)}>
-            Close
-          </CButton>
-          <CButton color="primary">{isDetailTrackerUpdating ? 'Update' : 'Add'}</CButton>
-        </CModalFooter>
+        <CModalBody>
+          <Formik
+            initialValues={isDetailTrackerUpdating ? updateInitialValues : addInitialValues}
+            validationSchema={detailsTrackerSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ handleBlur, handleChange, values, errors, touched, handleSubmit }) => (
+              <CForm method="POST" className="row g-3" onSubmit={handleSubmit}>
+                <CCol md={6}>
+                  <CFormInput
+                    onChange={handleChange}
+                    type="number"
+                    label="Profit"
+                    name="profit"
+                    onBlur={handleBlur}
+                    value={values.profit}
+                  />
+                  {touched.profit && errors.profit && (
+                    <div className="mt-2 text-danger mb-2">{errors.profit}</div>
+                  )}
+                </CCol>
+                <CCol md={6}>
+                  <CFormInput
+                    onChange={handleChange}
+                    type="number"
+                    label="Revenue"
+                    name="revenue"
+                    onBlur={handleBlur}
+                    value={values.revenue}
+                  />
+                  {touched.revenue && errors.revenue && (
+                    <div className="mt-2 text-danger mb-2">{errors.revenue}</div>
+                  )}
+                </CCol>
+                <CCol xs={12}>
+                  <CFormInput
+                    onChange={handleChange}
+                    type="text"
+                    label="Description"
+                    name="description"
+                    onBlur={handleBlur}
+                    value={values.description}
+                  />
+                  {touched.description && errors.description && (
+                    <div className="mt-2 text-danger mb-2">{errors.description}</div>
+                  )}
+                </CCol>
+                <CCol md={6}>
+                  <CFormInput
+                    id="Cost"
+                    label="Cost"
+                    name="cost"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.cost}
+                    type="number"
+                  />
+                  {touched.cost && errors.cost && (
+                    <div className="mt-2 text-danger mb-2">{errors.cost}</div>
+                  )}
+                </CCol>
+                <CCol md={6}>
+                  <CFormInput
+                    label="Number of days"
+                    name="numberOfDays"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.numberOfDays}
+                  />
+                  {touched.numberOfDays && errors.numberOfDays && (
+                    <div className="mt-2 text-danger mb-2">{errors.numberOfDays}</div>
+                  )}
+                </CCol>
+                <CCol md={6}>
+                  <CFormInput
+                    type="number"
+                    label="Completion Percentage"
+                    name="completionPercentage"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.completionPercentage}
+                  />
+                  {touched.completionPercentage && errors.completionPercentage && (
+                    <div className="mt-2 text-danger mb-2">{errors.completionPercentage}</div>
+                  )}
+                </CCol>
+                <CButton color="secondary" onClick={() => setShowDetailsTrackerModal(false)}>
+                  Close
+                </CButton>
+                <CButton type="submit" color="primary">
+                  {isDetailTrackerUpdating ? 'Update' : 'Add'}
+                </CButton>
+              </CForm>
+            )}
+          </Formik>
+        </CModalBody>
       </CModal>
     </>
   )
