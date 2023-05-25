@@ -15,6 +15,7 @@ import {
   CForm,
   CCol,
   CFormInput,
+  CSpinner,
 } from '@coreui/react'
 import {
   useDeleteSingleProjectMutation,
@@ -52,6 +53,7 @@ const ProjectDetails = () => {
   } = useGetAllDetailTrackersByProjectIdQuery(state.currentProject._id)
   const [showDetailsTrackerModal, setShowDetailsTrackerModal] = useState(false)
   const [isDetailTrackerUpdating, setIsDetailTrackerUpdating] = useState(false)
+  const [showDetailsTrackerDetailsModal, setShowDetailsTrackerDetailsModal] = useState(false)
 
   useEffect(() => {
     if (state.currentProject == undefined || Object.keys(state.currentProject).length === 0) {
@@ -62,7 +64,6 @@ const ProjectDetails = () => {
   const deleteProjectHandle = async () => {
     try {
       const response = await deleteProject(state.currentProject._id).unwrap()
-      console.log('RESPONSE: ', response)
       if (response) {
         toast.success(`Project ${state.currentProject.name} is deleted successfully!`)
         dispatch(setCurrentProject({}))
@@ -78,21 +79,31 @@ const ProjectDetails = () => {
     navigate('/updateProject')
   }
 
-  const handleDeleteDetailTracker = async (detailTracker) => {
+  const handleDeleteDetailTracker = async (event, detailTracker) => {
+    event.stopPropagation()
     try {
       const response = await deleteDetailTracker(detailTracker._id)
       if (response) {
         toast.success('Project details object is deleted')
+        dispatch(setCurrentDetailTracker({}))
+        dispatch(setRefetchProjects(true))
+        detailTrackersRefetch()
       }
     } catch (error) {
       console.error('Something went wrong: ', error)
       toast.error('Something went wrong, please try again later!')
     }
   }
-  const handleUpdateDetailTracker = (detailTracker) => {
+  const handleUpdateDetailTracker = (event, detailTracker) => {
     dispatch(setCurrentDetailTracker(detailTracker))
     setIsDetailTrackerUpdating(true)
     setShowDetailsTrackerModal(true)
+    event.stopPropagation()
+  }
+
+  const handleClickDetailTracker = (detailTracker) => {
+    dispatch(setCurrentDetailTracker(detailTracker))
+    setShowDetailsTrackerDetailsModal(true)
   }
 
   const handleSubmit = async (values, actions) => {
@@ -125,18 +136,21 @@ const ProjectDetails = () => {
         actions.resetForm()
         toast.success(`Project details are ${isDetailTrackerUpdating ? 'Updated' : 'Added'}.`)
         setShowDetailsTrackerModal(false)
+        detailTrackersRefetch()
+        dispatch(setRefetchProjects(true))
       } else {
         toast.error('Something went wrong please try again later!')
         actions.resetForm()
         setShowDetailsTrackerModal(false)
+        dispatch(setLoading(false))
       }
     } catch (e) {
       console.error('Something went wrong: ', e)
       toast.error('Something went wrong please try again later!')
       setShowDetailsTrackerModal(false)
       actions.resetForm()
+      dispatch(setLoading(false))
     }
-    dispatch(setLoading(false))
   }
 
   const addInitialValues = {
@@ -209,18 +223,25 @@ const ProjectDetails = () => {
           </div>
         </CCardBody>
       </CCard>
-      {!detailTrackersLoading &&
-        !detailTrackersFetching &&
-        detailTrackers.map((detailTracker, index) => (
-          <DetailTracker
-            key={index}
-            detailTracker={detailTracker}
-            onUpdate={handleUpdateDetailTracker}
-            onDelete={handleDeleteDetailTracker}
-            onClick={() => dispatch(setCurrentDetailTracker(detailTracker))}
-          />
-        ))}
-      <CModal visible={showDetailsTrackerModal}>
+      {detailTrackersLoading && detailTrackersFetching ? (
+        <div className="text-center">
+          <CSpinner color="primary" />
+        </div>
+      ) : (
+        <>
+          <h3>Details</h3>
+          {detailTrackers.map((detailTracker, index) => (
+            <DetailTracker
+              key={index}
+              detailTracker={detailTracker}
+              onUpdate={handleUpdateDetailTracker}
+              onDelete={handleDeleteDetailTracker}
+              onClick={() => handleClickDetailTracker(detailTracker)}
+            />
+          ))}
+        </>
+      )}
+      <CModal visible={showDetailsTrackerModal} onClose={() => setShowDetailsTrackerModal(false)}>
         <CModalHeader>
           <CModalTitle>{isDetailTrackerUpdating ? 'Update' : 'Add'} Details</CModalTitle>
         </CModalHeader>
@@ -319,6 +340,42 @@ const ProjectDetails = () => {
               </CForm>
             )}
           </Formik>
+        </CModalBody>
+      </CModal>
+
+      <CModal
+        visible={showDetailsTrackerDetailsModal}
+        onClose={() => setShowDetailsTrackerDetailsModal(false)}
+        alignment="center"
+      >
+        <CModalHeader>
+          <CModalTitle>Details</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CCardText>{state.currentDetailsTracker.description}</CCardText>
+          <CTable borderless>
+            <tr>
+              <td>Revenue</td>
+              <td>Rs. {state.currentDetailsTracker.revenue}</td>
+            </tr>
+            <tr>
+              <td>Cost</td>
+              <td>Rs. {state.currentDetailsTracker.cost}</td>
+            </tr>
+            <tr>
+              <td>Profit</td>
+              <td>Rs. {state.currentDetailsTracker.profit}</td>
+            </tr>
+            <tr>
+              <td>Number of days</td>
+              <td>{state.currentDetailsTracker.numberOfDays} days</td>
+            </tr>
+
+            <tr>
+              <td>Completion percentage</td>
+              <td>{state.currentDetailsTracker.completionPercentage} %</td>
+            </tr>
+          </CTable>
         </CModalBody>
       </CModal>
     </>
