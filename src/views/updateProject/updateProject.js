@@ -26,7 +26,7 @@ const UpdateProject = () => {
     projectLocationZipCode: state.currentProject?.address?.zipCode ?? '',
     projectLocationStreetAddress: state.currentProject?.address?.streetAddress ?? '',
     projectStartDate: new Date(state.currentProject?.startDate).toLocaleDateString() ?? '',
-    projectEstimatedDays: state.currentProject?.estimatedDays ?? '',
+    projectEstimatedDays: state.currentProject?.estimatedNumberOfDays ?? '',
     projectEstimatedCost: state.currentProject?.estimatedCost ?? '',
     projectProfit: state.currentProject?.profit ?? 0,
     projectRevenue: state.currentProject?.revenue ?? 0,
@@ -42,7 +42,7 @@ const UpdateProject = () => {
         completionPercentage: values.projectCompletionPercentage,
         description: values.projectDescription,
         estimatedCost: values.projectEstimatedCost,
-        estimatedDays: values.projectEstimatedDays,
+        estimatedNumberOfDays: values.projectEstimatedDays,
         name: values.projectName,
         profit: values.projectProfit,
         revenue: values.projectRevenue,
@@ -216,34 +216,6 @@ const UpdateProject = () => {
                   />
                   {touched.projectRevenue && errors.projectRevenue && (
                     <div className="mt-2 text-danger mb-2">{errors.projectRevenue}</div>
-                  )}
-                </CCol>
-                <CCol md={6}>
-                  <CFormInput
-                    type="number"
-                    label="Completion Percentage"
-                    name="projectCompletionPercentage"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.projectCompletionPercentage}
-                  />
-                  {touched.projectCompletionPercentage && errors.projectCompletionPercentage && (
-                    <div className="mt-2 text-danger mb-2">
-                      {errors.projectCompletionPercentage}
-                    </div>
-                  )}
-                </CCol>
-                <CCol md={6}>
-                  <CFormInput
-                    type="text"
-                    label="Status"
-                    name="projectStatus"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.projectStatus}
-                  />
-                  {touched.projectStatus && errors.projectStatus && (
-                    <div className="mt-2 text-danger mb-2">{errors.projectStatus}</div>
                   )}
                 </CCol>
                 <CCol xs={12} className="text-end">

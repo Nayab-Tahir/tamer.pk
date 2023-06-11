@@ -33,7 +33,7 @@ const AddProject = () => {
         completionPercentage: 0,
         description: values.projectDescription,
         estimatedCost: values.projectEstimatedCost,
-        estimatedDays: values.projectEstimatedDays,
+        estimatedNumberOfDays: values.projectEstimatedDays,
         name: values.projectName,
         profit: 0,
         revenue: 0,
@@ -45,6 +45,8 @@ const AddProject = () => {
           country: values.projectLocationCountry,
           zipCode: values.projectLocationZipCode,
         },
+        spentCost: 0,
+        spentNumberOfDays: 0,
       }).unwrap()
       if (response) {
         actions.resetForm()

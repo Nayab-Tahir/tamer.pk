@@ -80,7 +80,7 @@ const Projects = ({ status }) => {
                 </tr>
                 <tr>
                   <td>Estimated Time</td>
-                  <td>{project.estimatedDays} days</td>
+                  <td>{project.estimatedNumberOfDays} days</td>
                 </tr>
               </CTable>
             </CCardBody>

@@ -58,154 +58,24 @@ import runningProject from 'src/assets/images/running_project.jpg'
 import completedProject from 'src/assets/images/completed_project.jpg'
 import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
-import { useSelector } from 'react-redux'
-import { useGetAllUsersQuery, useGetSingleProjectQuery } from '../../store/rtk-query/index'
+import { useSelector, useDispatch } from 'react-redux'
+import { useGetAllProjectsByUserIdQuery } from '../../store/rtk-query/index'
 import { useNavigate } from 'react-router-dom'
+import { setProjects } from 'src/store/slices/main'
 
 const Dashboard = () => {
-  const state = useSelector((state) => state)
+  const dispatch = useDispatch()
+  const state = useSelector((state) => state.main)
   const navigate = useNavigate()
-  // const {
-  //   data: projectData,
-  //   isFetching,
-  //   isLoading,
-  // } = useGetSingleProjectQuery('645cb1409a60d0b734a08493')
-  // const { data: users, isFetching, isLoading } = useGetAllUsersQuery()
+  const {
+    data: allProjects = [],
+    isLoading,
+    isFetching,
+    refetch: refetchProjects,
+  } = useGetAllProjectsByUserIdQuery(state.userId)
   const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
-  // console.log('USERS: ', users)
 
-  ////////////////////////////////////// DUMMY DATA
-  const projects = [
-    {
-      id: 1,
-      name: 'Project A',
-      description:
-        'This is a sample project that demonstrates the basic functionality of the application.',
-      startDate: '2022-01-01',
-      endDate: '2022-12-31',
-      status: 'active',
-      completionPercentage: 75,
-      revenue: 100000,
-      cost: 80000,
-      profit: 20000,
-    },
-    {
-      id: 2,
-      name: 'Project B',
-      description:
-        'This project is a more advanced version of Project A and includes additional features.',
-      startDate: '2022-02-01',
-      endDate: '2022-11-30',
-      status: 'active',
-      completionPercentage: 50,
-      revenue: 150000,
-      cost: 120000,
-      profit: 30000,
-    },
-    {
-      id: 3,
-      name: 'Project C',
-      description:
-        'This project is a complex project that involves multiple teams and a long development timeline.',
-      startDate: '2022-03-01',
-      endDate: '2022-12-31',
-      status: 'inactive',
-      completionPercentage: 100,
-      revenue: 200000,
-      cost: 180000,
-      profit: 20000,
-    },
-    {
-      id: 1,
-      name: 'Project D',
-      description:
-        'This is a sample project that demonstrates the basic functionality of the application.',
-      startDate: '2022-01-01',
-      endDate: '2022-12-31',
-      status: 'active',
-      completionPercentage: 75,
-      revenue: 100000,
-      cost: 80000,
-      profit: 20000,
-    },
-    {
-      id: 2,
-      name: 'Project E',
-      description:
-        'This project is a more advanced version of Project A and includes additional features.',
-      startDate: '2022-02-01',
-      endDate: '2022-11-30',
-      status: 'active',
-      completionPercentage: 50,
-      revenue: 150000,
-      cost: 120000,
-      profit: 30000,
-    },
-    {
-      id: 3,
-      name: 'Project F',
-      description:
-        'This project is a complex project that involves multiple teams and a long development timeline.',
-      startDate: '2022-03-01',
-      endDate: '2022-12-31',
-      status: 'inactive',
-      completionPercentage: 100,
-      revenue: 200000,
-      cost: 180000,
-      profit: 20000,
-    },
-    {
-      id: 4,
-      name: 'Project G',
-      description: 'This project involves the development of a new e-commerce platform.',
-      startDate: '2022-04-01',
-      endDate: '2022-09-30',
-      status: 'active',
-      completionPercentage: 60,
-      revenue: 250000,
-      cost: 200000,
-      profit: 50000,
-    },
-    {
-      id: 5,
-      name: 'Project H',
-      description:
-        'This project is focused on the design and implementation of a new mobile application.',
-      startDate: '2022-05-01',
-      endDate: '2022-12-31',
-      status: 'active',
-      completionPercentage: 45,
-      revenue: 300000,
-      cost: 270000,
-      profit: 30000,
-    },
-    {
-      id: 6,
-      name: 'Project I',
-      description:
-        'This project is a complex project that involves the integration of multiple systems.',
-      startDate: '2022-06-01',
-      endDate: '2022-11-30',
-      status: 'inactive',
-      completionPercentage: 100,
-      revenue: 350000,
-      cost: 330000,
-      profit: 20000,
-    },
-    {
-      id: 7,
-      name: 'Project J',
-      description:
-        'This project is focused on the development of a new website for a small business.',
-      startDate: '2022-07-01',
-      endDate: '2022-12-31',
-      status: 'active',
-      completionPercentage: 70,
-      revenue: 400000,
-      cost: 350000,
-      profit: 50000,
-    },
-  ]
+  !isLoading && !isFetching && dispatch(setProjects(allProjects))
 
   const findCount = () => {
     let rnPs = 0
@@ -219,8 +89,8 @@ const Dashboard = () => {
     let rnProfit = 0
     let cmProfit = 0
 
-    projects.forEach((item) => {
-      if (item.status === 'active') {
+    allProjects.forEach((item) => {
+      if (item.status === 'ACTIVE') {
         rnPs += 1
         rnPer += item.completionPercentage
         rnRevenue += item.revenue
@@ -272,7 +142,7 @@ const Dashboard = () => {
           </CRow>
           <CRow className="mx-5 px-5">
             <div className="text-center mt-2">
-              <h5>Completion ({(rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs)}%)</h5>
+              <h5>Completion ({(rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs || 1)}%)</h5>
             </div>
             <div className="px-5">
               <CProgress
@@ -350,17 +220,17 @@ const Dashboard = () => {
         <CCardBody>
           <CChartBar
             data={{
-              labels: projects.map((project) => project.name),
+              labels: allProjects.map((project) => project.name),
               datasets: [
                 {
                   label: 'Project Revenue',
                   backgroundColor: '#2eb85c',
-                  data: projects.map((project) => project.revenue),
+                  data: allProjects.map((project) => project.revenue),
                 },
                 {
                   label: 'Project Cost',
                   backgroundColor: '#e55353',
-                  data: projects.map((project) => project.cost),
+                  data: allProjects.map((project) => project.cost),
                 },
               ],
             }}

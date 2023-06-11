@@ -205,7 +205,7 @@ const ProjectDetails = () => {
             </tr>
             <tr>
               <td>Estimated Time</td>
-              <td>{state.currentProject.estimatedDays} days</td>
+              <td>{state.currentProject.estimatedNumberOfDays} days</td>
             </tr>
           </CTable>
           <div className="text-center">
