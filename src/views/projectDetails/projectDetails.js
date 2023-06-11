@@ -16,6 +16,7 @@ import {
   CCol,
   CFormInput,
   CSpinner,
+  CCardHeader,
 } from '@coreui/react'
 import {
   useDeleteSingleProjectMutation,
@@ -31,6 +32,7 @@ import {
   setCurrentDetailTracker,
   setCurrentProject,
   setLoading,
+  setProjects,
   setRefetchProjects,
 } from 'src/store/slices/main'
 import { Formik } from 'formik'
@@ -54,6 +56,7 @@ const ProjectDetails = () => {
   const [showDetailsTrackerModal, setShowDetailsTrackerModal] = useState(false)
   const [isDetailTrackerUpdating, setIsDetailTrackerUpdating] = useState(false)
   const [showDetailsTrackerDetailsModal, setShowDetailsTrackerDetailsModal] = useState(false)
+  const [showProjectDetailsModal, setShowProjectDetailsModal] = useState(false)
 
   useEffect(() => {
     if (state.currentProject == undefined || Object.keys(state.currentProject).length === 0) {
@@ -61,7 +64,43 @@ const ProjectDetails = () => {
     }
   }, [state.currentProject])
 
-  const deleteProjectHandle = async () => {
+  const updateProjectsLocally = (values, isUpdating) => {
+    if (isUpdating) {
+      dispatch(
+        setCurrentProject({
+          ...state.currentProject,
+          profit: state.currentProject.profit - state.currentDetailsTracker.profit + values.profit,
+          completionPercentage:
+            state.currentProject.completionPercentage -
+            state.currentDetailsTracker.completionPercentage +
+            values.completionPercentage,
+          revenue:
+            state.currentProject.revenue - state.currentDetailsTracker.revenue + values.revenue,
+          spentCost:
+            state.currentProject.spentCost - state.currentDetailsTracker.cost + values.cost,
+          spentNumberOfDays:
+            state.currentProject.spentNumberOfDays -
+            state.currentDetailsTracker.numberOfDays +
+            values.numberOfDays,
+        }),
+      )
+    } else {
+      dispatch(
+        setCurrentProject({
+          ...state.currentProject,
+          profit: state.currentProject.profit + values.profit,
+          completionPercentage:
+            state.currentProject.completionPercentage + values.completionPercentage,
+          revenue: state.currentProject.revenue + values.revenue,
+          spentCost: state.currentProject.spentCost + values.cost,
+          spentNumberOfDays: state.currentProject.spentNumberOfDays + values.numberOfDays,
+        }),
+      )
+    }
+  }
+
+  const deleteProjectHandle = async (event) => {
+    event.stopPropagation()
     try {
       const response = await deleteProject(state.currentProject._id).unwrap()
       if (response) {
@@ -79,15 +118,33 @@ const ProjectDetails = () => {
     navigate('/updateProject')
   }
 
+  const updateProjectsLocallyOnDeleteDetailTracker = (detailTracker) => {
+    dispatch(
+      setCurrentProject({
+        ...state.currentProject,
+        profit: state.currentProject.profit - detailTracker.profit,
+        completionPercentage:
+          state.currentProject.completionPercentage - detailTracker.completionPercentage,
+        revenue: state.currentProject.revenue - detailTracker.revenue,
+        spentCost: state.currentProject.spentCost - detailTracker.cost,
+        spentNumberOfDays: state.currentProject.spentNumberOfDays - detailTracker.numberOfDays,
+      }),
+    )
+  }
+
   const handleDeleteDetailTracker = async (event, detailTracker) => {
     event.stopPropagation()
     try {
-      const response = await deleteDetailTracker(detailTracker._id)
+      updateProjectsLocallyOnDeleteDetailTracker(detailTracker)
+      const response = await deleteDetailTracker({
+        id: detailTracker._id,
+        projectId: state.currentProject._id,
+      })
       if (response) {
         toast.success('Project details object is deleted')
         dispatch(setCurrentDetailTracker({}))
         dispatch(setRefetchProjects(true))
-        detailTrackersRefetch()
+        detailTrackersRefetch(state.currentProject._id)
       }
     } catch (error) {
       console.error('Something went wrong: ', error)
@@ -112,6 +169,7 @@ const ProjectDetails = () => {
       let response = {}
 
       if (isDetailTrackerUpdating) {
+        updateProjectsLocally(values, isDetailTrackerUpdating)
         response = await updateDetailTracker({
           completionPercentage: values.completionPercentage,
           profit: values.profit,
@@ -119,9 +177,11 @@ const ProjectDetails = () => {
           revenue: values.revenue,
           description: values.description,
           numberOfDays: values.numberOfDays,
+          projectId: state.currentProject._id,
           id: state.currentDetailsTracker._id,
         }).unwrap()
       } else {
+        updateProjectsLocally(values, isDetailTrackerUpdating)
         response = await createDetailTracker({
           completionPercentage: values.completionPercentage,
           profit: values.profit,
@@ -136,8 +196,9 @@ const ProjectDetails = () => {
         actions.resetForm()
         toast.success(`Project details are ${isDetailTrackerUpdating ? 'Updated' : 'Added'}.`)
         setShowDetailsTrackerModal(false)
-        detailTrackersRefetch()
+        detailTrackersRefetch(state.currentProject._id)
         dispatch(setRefetchProjects(true))
+        dispatch(setLoading(false))
       } else {
         toast.error('Something went wrong please try again later!')
         actions.resetForm()
@@ -173,10 +234,11 @@ const ProjectDetails = () => {
 
   return (
     <>
-      <CCard className="mb-3">
+      <CCard className="mb-3 pointer-cursor" onClick={() => setShowProjectDetailsModal(true)}>
         {/* <CCardImage orientation="top" src={completedProject} /> */}
+        <CCardHeader>{state.currentProject.name}</CCardHeader>
         <CCardBody className="position-relative">
-          <CCardTitle>{state.currentProject.name}</CCardTitle>
+          <CCardTitle>{state.currentProject.description}</CCardTitle>
           <CIcon
             icon={cilTrash}
             height={20}
@@ -189,7 +251,7 @@ const ProjectDetails = () => {
             className="my-4 text-warning projectUpdateIcon position-absolute"
             onClick={updateProjectHandle}
           />
-          <CCardText>{state.currentProject.description}</CCardText>
+          {/* <CCardText>{state.currentProject.description}</CCardText> */}
           <CTable borderless>
             <tr>
               <td>Revenue</td>
@@ -209,16 +271,24 @@ const ProjectDetails = () => {
             </tr>
           </CTable>
           <div className="text-center">
+            <CButton type="button" color="primary" variant="outline" className="me-3" disabled>
+              Show Schedule
+            </CButton>
             <CButton
-              type="submit"
+              type="button"
               color="success"
               variant="outline"
-              onClick={() => {
+              onClick={(event) => {
+                event.stopPropagation()
                 setShowDetailsTrackerModal(true)
                 setIsDetailTrackerUpdating(false)
               }}
+              className="me-3"
             >
               Add Progress Details
+            </CButton>
+            <CButton type="button" color="secondary" variant="outline">
+              Show Details
             </CButton>
           </div>
         </CCardBody>
@@ -229,16 +299,22 @@ const ProjectDetails = () => {
         </div>
       ) : (
         <>
-          <h3>Details</h3>
-          {detailTrackers.map((detailTracker, index) => (
-            <DetailTracker
-              key={index}
-              detailTracker={detailTracker}
-              onUpdate={handleUpdateDetailTracker}
-              onDelete={handleDeleteDetailTracker}
-              onClick={() => handleClickDetailTracker(detailTracker)}
-            />
-          ))}
+          {detailTrackers && detailTrackers.length > 0 && (
+            <CCard>
+              <CCardHeader>Details</CCardHeader>
+              <CCardBody>
+                {detailTrackers.map((detailTracker, index) => (
+                  <DetailTracker
+                    key={index}
+                    detailTracker={detailTracker}
+                    onUpdate={handleUpdateDetailTracker}
+                    onDelete={handleDeleteDetailTracker}
+                    onClick={() => handleClickDetailTracker(detailTracker)}
+                  />
+                ))}
+              </CCardBody>
+            </CCard>
+          )}
         </>
       )}
       <CModal visible={showDetailsTrackerModal} onClose={() => setShowDetailsTrackerModal(false)}>
@@ -374,6 +450,50 @@ const ProjectDetails = () => {
             <tr>
               <td>Completion percentage</td>
               <td>{state.currentDetailsTracker.completionPercentage} %</td>
+            </tr>
+          </CTable>
+        </CModalBody>
+      </CModal>
+
+      <CModal
+        visible={showProjectDetailsModal}
+        onClose={() => setShowProjectDetailsModal(false)}
+        alignment="center"
+      >
+        <CModalHeader>
+          <CModalTitle>{state.currentProject.name} Details</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CCardText>{state.currentProject.description}</CCardText>
+          <CTable borderless>
+            <tr>
+              <td>Revenue</td>
+              <td>Rs. {state.currentProject.revenue}</td>
+            </tr>
+            <tr>
+              <td>Expected Cost</td>
+              <td>Rs. {state.currentProject.estimatedCost}</td>
+            </tr>
+            <tr>
+              <td>Spent Cost</td>
+              <td>Rs. {state.currentProject.spentCost}</td>
+            </tr>
+            <tr>
+              <td>Profit</td>
+              <td>Rs. {state.currentProject.profit}</td>
+            </tr>
+            <tr>
+              <td>Estimated Number of days</td>
+              <td>{state.currentProject.estimatedNumberOfDays} days</td>
+            </tr>
+            <tr>
+              <td>Spent Number of days</td>
+              <td>{state.currentProject.spentNumberOfDays} days</td>
+            </tr>
+
+            <tr>
+              <td>Completion percentage</td>
+              <td>{state.currentProject.completionPercentage} %</td>
             </tr>
           </CTable>
         </CModalBody>

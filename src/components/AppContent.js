@@ -12,7 +12,7 @@ const AppContent = () => {
     <CContainer lg>
       {loadingState && (
         <div className="text-center mt-2 mb-2">
-          <CSpinner color="primary" size="large" />
+          <CSpinner color="primary" />
         </div>
       )}
       <Suspense fallback={<CSpinner color="primary" />}>

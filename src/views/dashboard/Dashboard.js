@@ -227,7 +227,7 @@ const Dashboard = () => {
                 {
                   label: 'Project Cost',
                   backgroundColor: '#e55353',
-                  data: allProjects.map((project) => project.cost),
+                  data: allProjects.map((project) => project.spentCost),
                 },
               ],
             }}

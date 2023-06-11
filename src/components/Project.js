@@ -8,9 +8,15 @@ import {
   CCardTitle,
   CCardText,
   CTable,
+  CCardHeader,
 } from '@coreui/react'
 import { useGetAllProjectsByUserIdQuery } from 'src/store/rtk-query'
-import { setCurrentProject, setLoading, setRefetchProjects } from 'src/store/slices/main'
+import {
+  setCurrentProject,
+  setLoading,
+  setProjects,
+  setRefetchProjects,
+} from 'src/store/slices/main'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
@@ -30,6 +36,8 @@ const Projects = ({ status }) => {
       dispatch(setRefetchProjects(false))
     }
   })
+
+  !isLoading && !isFetching && dispatch(setProjects(allProjects))
   const showProject = (project) => {
     dispatch(setCurrentProject(project))
     navigate('/showProject')
@@ -60,10 +68,10 @@ const Projects = ({ status }) => {
     })
     return filteredProject.length > 0
       ? filteredProject.map((project, key) => (
-          <CCard className="mb-3" key={key} onClick={() => showProject(project)}>
+          <CCard className="mb-3 pointer-cursor" key={key} onClick={() => showProject(project)}>
             {/* <CCardImage orientation="top" src={completedProject} /> */}
+            <CCardHeader>{project.name}</CCardHeader>
             <CCardBody>
-              {/* <CCardTitle>Completed Projects</CCardTitle> */}
               <CCardText>{project.description}</CCardText>
               <CTable borderless>
                 <tr>
@@ -83,6 +91,11 @@ const Projects = ({ status }) => {
                   <td>{project.estimatedNumberOfDays} days</td>
                 </tr>
               </CTable>
+              <div className="text-center">
+                <CButton type="button" color="success" variant="outline">
+                  Show Details
+                </CButton>
+              </div>
             </CCardBody>
           </CCard>
         ))

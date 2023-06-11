@@ -97,9 +97,10 @@ export const BaseApi = createApi({
     }),
 
     deleteSingleDetailTracker: builder.mutation({
-      query: (id) => ({
+      query: ({ id, projectId }) => ({
         url: `details-tracker/delete/${id}`,
         method: 'DELETE',
+        body: { projectId },
       }),
     }),
   }),

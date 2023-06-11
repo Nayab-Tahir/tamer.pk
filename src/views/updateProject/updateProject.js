@@ -192,32 +192,6 @@ const UpdateProject = () => {
                     <div className="mt-2 text-danger mb-2">{errors.projectEstimatedCost}</div>
                   )}
                 </CCol>
-                <CCol md={6}>
-                  <CFormInput
-                    type="number"
-                    label="Profit"
-                    name="projectProfit"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.projectProfit}
-                  />
-                  {touched.projectProfit && errors.projectProfit && (
-                    <div className="mt-2 text-danger mb-2">{errors.projectProfit}</div>
-                  )}
-                </CCol>
-                <CCol md={6}>
-                  <CFormInput
-                    type="number"
-                    label="Revenue"
-                    name="projectRevenue"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.projectRevenue}
-                  />
-                  {touched.projectRevenue && errors.projectRevenue && (
-                    <div className="mt-2 text-danger mb-2">{errors.projectRevenue}</div>
-                  )}
-                </CCol>
                 <CCol xs={12} className="text-end">
                   <CButton className="me-2" type="submit" color="success" variant="outline">
                     Update Project

@@ -7,7 +7,7 @@ import PropTypes from 'prop-types'
 const DetailTracker = ({ detailTracker, onClick, onUpdate, onDelete }) => {
   return (
     <>
-      <CCard className="mb-3 cursor-pointer" onClick={onClick}>
+      <CCard className="mb-3 pointer-cursor" onClick={onClick}>
         <CCardBody className="position-relative">
           <CCardTitle>{detailTracker.description}</CCardTitle>
           <CIcon
