@@ -1,12 +1,9 @@
 import React from 'react'
 
 import {
-  CAvatar,
   CButton,
-  CButtonGroup,
   CCard,
   CCardBody,
-  CCardFooter,
   CCardHeader,
   CCardImage,
   CCardTitle,
@@ -15,40 +12,12 @@ import {
   CProgress,
   CRow,
   CTable,
-  CWidgetStatsB,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
   CWidgetStatsD,
 } from '@coreui/react'
-import { CChartBar, CChartLine } from '@coreui/react-chartjs'
-import { getStyle, hexToRgba } from '@coreui/utils'
+import { CChartBar } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
 import {
-  cibCcAmex,
-  cibCcApplePay,
-  cibCcMastercard,
-  cibCcPaypal,
-  cibCcStripe,
-  cibCcVisa,
-  cibGoogle,
-  cibFacebook,
-  cibLinkedin,
-  cifBr,
-  cifEs,
-  cifFr,
-  cifIn,
-  cifPl,
-  cifUs,
-  cibTwitter,
-  cilCloudDownload,
-  cilPeople,
-  cilUser,
-  cilUserFemale,
   cilArrowThickFromTop,
-  cilBuilding,
   cilLibraryBuilding,
   cilMoney,
   cilArrowThickFromBottom,
@@ -56,8 +25,6 @@ import {
 
 import runningProject from 'src/assets/images/running_project.jpg'
 import completedProject from 'src/assets/images/completed_project.jpg'
-import WidgetsBrand from '../widgets/WidgetsBrand'
-import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import { useSelector, useDispatch } from 'react-redux'
 import { useGetAllProjectsByUserIdQuery } from '../../store/rtk-query/index'
 import { useNavigate } from 'react-router-dom'
@@ -73,7 +40,7 @@ const Dashboard = () => {
     isFetching,
     refetch: refetchProjects,
   } = useGetAllProjectsByUserIdQuery(state.userId)
-  const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
+  // const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
 
   !isLoading && !isFetching && dispatch(setProjects(allProjects))
 
@@ -88,33 +55,61 @@ const Dashboard = () => {
     let cmCost = 0
     let rnProfit = 0
     let cmProfit = 0
+    let spentDays = 0
+    let spentMonthsPerCmPs = 0
+
+    console.log(allProjects)
 
     allProjects.forEach((item) => {
       if (item.status === 'ACTIVE') {
         rnPs += 1
         rnPer += item.completionPercentage
         rnRevenue += item.revenue
-        rnCost += item.cost
+        rnCost += item.spentCost
         rnProfit += item.profit
       } else {
         cmPs += 1
         cmPer += item.completionPercentage
         cmRevenue += item.revenue
-        cmCost += item.cost
+        cmCost += item.spentCost
         cmProfit += item.profit
+        spentDays += item.spentNumberOfDays
       }
     })
-    rnPer = rnPer / rnPs
-    cmPer = cmPer / cmPs
-    return { rnPs, cmPs, rnPer, cmPer, rnRevenue, cmRevenue, rnCost, cmCost, rnProfit, cmProfit }
+    rnPer = rnPer / (rnPs || 1)
+    cmPer = cmPer / (cmPs || 1)
+    spentMonthsPerCmPs = spentDays / 30 / (cmPs || 1)
+    return {
+      rnPs,
+      cmPs,
+      rnPer,
+      cmPer,
+      rnRevenue,
+      cmRevenue,
+      rnCost,
+      cmCost,
+      rnProfit,
+      cmProfit,
+      spentMonthsPerCmPs,
+    }
   }
 
-  const { rnPs, cmPs, rnPer, cmPer, rnRevenue, cmRevenue, rnCost, cmCost, rnProfit, cmProfit } =
-    findCount()
+  const {
+    rnPs,
+    cmPs,
+    rnPer,
+    cmPer,
+    rnRevenue,
+    cmRevenue,
+    rnCost,
+    cmCost,
+    rnProfit,
+    cmProfit,
+    spentMonthsPerCmPs,
+  } = findCount()
 
   let savedColorHexForLaterUse = '#3b5998'
   let anotherOneColor = '#2eb85c'
-  ///////////////////////////////////// DUMMY DATA
 
   return (
     <>
@@ -148,7 +143,7 @@ const Dashboard = () => {
               <CProgress
                 className="mb-3 mx-5 px-0"
                 color="success"
-                value={Math.floor((rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs))}
+                value={Math.floor((rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs || 1))}
               >
                 {(rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs)}%
               </CProgress>
@@ -204,7 +199,9 @@ const Dashboard = () => {
             values={[
               {
                 title: 'Profit Percentage',
-                value: `${Math.floor(((rnProfit + cmProfit) * 100) / (rnRevenue + cmRevenue))}%`,
+                value: `${Math.floor(
+                  ((rnProfit + cmProfit) * 100) / (rnRevenue + cmRevenue || 1),
+                )}%`,
               },
               // { title: 'feeds', value: '459' },
             ]}
@@ -310,11 +307,11 @@ const Dashboard = () => {
                 </tr>
                 <tr>
                   <td>Profit/Project</td>
-                  <td>Rs. {cmProfit / cmPs}</td>
+                  <td>Rs. {cmProfit / (cmPs || 1)}</td>
                 </tr>
                 <tr>
                   <td>Time/Project</td>
-                  <td>5 months</td>
+                  <td>{spentMonthsPerCmPs} Months</td>
                 </tr>
               </CTable>
               <div className="text-center">
