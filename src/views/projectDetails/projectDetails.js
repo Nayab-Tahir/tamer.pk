@@ -18,6 +18,7 @@ import {
   CSpinner,
   CCardHeader,
 } from '@coreui/react'
+import { CChart } from '@coreui/react-chartjs'
 import {
   useDeleteSingleProjectMutation,
   useCreateDetailTrackerMutation,
@@ -58,6 +59,60 @@ const ProjectDetails = () => {
   const [showDetailsTrackerDetailsModal, setShowDetailsTrackerDetailsModal] = useState(false)
   const [showProjectDetailsModal, setShowProjectDetailsModal] = useState(false)
   const [showProjectScheduleModal, setShowProjectScheduleModal] = useState(false)
+
+  console.log(detailTrackers)
+  const getDaysList = (days) => {
+    let daysList = []
+    let step = 0
+    let day = 0
+    let steps = Math.floor(days / 30) + 2
+    while (step < steps) {
+      daysList.push(day)
+      day += 30
+      step += 1
+    }
+    return daysList
+  }
+
+  const getProjectedXAxis = (days) => {
+    let percentageList = []
+    let percentStep = (30 / days) * 100
+    let percent = 0
+
+    while (percent < 100) {
+      percentageList.push(percent)
+      percent += percentStep
+    }
+    return percentageList
+  }
+
+  const getRealXAxis = (details) => {
+    let percentageList = [0]
+    let days = details.map((detail) => detail.numberOfDays)
+    let percentages = details.map((detail) => detail.completionPercentage)
+
+    let index = 0
+    let previousDays = 0
+    let previousPercentage = 0
+    let remainingDays, stepPercent
+    while (index < days.length) {
+      remainingDays = days[index] + previousDays
+      stepPercent =
+        (previousPercentage / 30) * previousDays +
+        (percentages[index] / days[index]) * (30 - previousDays)
+      percentageList.push(stepPercent)
+      remainingDays -= 30
+      stepPercent = (percentages[index] / days[index]) * 30
+      while (remainingDays >= 30) {
+        percentageList.push(stepPercent)
+        remainingDays -= 30
+      }
+      previousDays = remainingDays
+      previousPercentage = stepPercent
+      index += 1
+    }
+    return percentageList
+  }
 
   useEffect(() => {
     if (state.currentProject == undefined || Object.keys(state.currentProject).length === 0) {
@@ -517,7 +572,48 @@ const ProjectDetails = () => {
         <CModalHeader>
           <CModalTitle>{state.currentProject.name} Schedule</CModalTitle>
         </CModalHeader>
-        <CModalBody>HERE WE WILL SHOW THE SCHEDULE CHARTS</CModalBody>
+        <CModalBody>
+          <div>
+            <h3>Project Progress</h3>
+            <CChart
+              type="line"
+              data={{
+                labels: getDaysList(state.currentProject.estimatedNumberOfDays),
+                datasets: [
+                  {
+                    label: 'Projected Percentage',
+                    data: getProjectedXAxis(state.currentProject.estimatedNumberOfDays),
+                    backgroundColor: 'transparent',
+                    borderColor: 'blue',
+                    pointHoverBackgroundColor: 'blue',
+                    borderWidth: 2,
+                    lineTension: 0.4,
+                  },
+                  {
+                    label: 'Completion Percentage',
+                    data: getRealXAxis(detailTrackers, state.currentProject.estimatedNumberOfDays),
+                    backgroundColor: 'transparent',
+                    borderColor: 'green',
+                    pointHoverBackgroundColor: 'blue',
+                    borderWidth: 2,
+                    lineTension: 0.4,
+                  },
+                ],
+              }}
+              options={{
+                scales: {
+                  y: {
+                    min: 0,
+                    max: 100,
+                    ticks: {
+                      stepSize: 10,
+                    },
+                  },
+                },
+              }}
+            />
+          </div>
+        </CModalBody>
       </CModal>
     </>
   )
