@@ -57,6 +57,7 @@ const ProjectDetails = () => {
   const [isDetailTrackerUpdating, setIsDetailTrackerUpdating] = useState(false)
   const [showDetailsTrackerDetailsModal, setShowDetailsTrackerDetailsModal] = useState(false)
   const [showProjectDetailsModal, setShowProjectDetailsModal] = useState(false)
+  const [showProjectScheduleModal, setShowProjectScheduleModal] = useState(false)
 
   useEffect(() => {
     if (state.currentProject == undefined || Object.keys(state.currentProject).length === 0) {
@@ -271,7 +272,16 @@ const ProjectDetails = () => {
             </tr>
           </CTable>
           <div className="text-center">
-            <CButton type="button" color="primary" variant="outline" className="me-3" disabled>
+            <CButton
+              onClick={(event) => {
+                event.stopPropagation()
+                setShowProjectScheduleModal(true)
+              }}
+              type="button"
+              color="primary"
+              variant="outline"
+              className="me-3"
+            >
               Show Schedule
             </CButton>
             <CButton
@@ -497,6 +507,17 @@ const ProjectDetails = () => {
             </tr>
           </CTable>
         </CModalBody>
+      </CModal>
+
+      <CModal
+        visible={showProjectScheduleModal}
+        onClose={() => setShowProjectScheduleModal(false)}
+        alignment="center"
+      >
+        <CModalHeader>
+          <CModalTitle>{state.currentProject.name} Schedule</CModalTitle>
+        </CModalHeader>
+        <CModalBody>HERE WE WILL SHOW THE SCHEDULE CHARTS</CModalBody>
       </CModal>
     </>
   )
