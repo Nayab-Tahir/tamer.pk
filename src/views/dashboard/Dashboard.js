@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import {
   CButton,
@@ -41,8 +41,12 @@ const Dashboard = () => {
     refetch: refetchProjects,
   } = useGetAllProjectsByUserIdQuery(state.userId)
   // const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
-
-  !isLoading && !isFetching && dispatch(setProjects(allProjects))
+  useEffect(() => {
+    // Dispatch the action to update the store with the fetched data
+    if (!isLoading && !isFetching) {
+      dispatch(setProjects(allProjects))
+    }
+  }, [isLoading, isFetching])
 
   const findCount = () => {
     let rnPs = 0
@@ -113,8 +117,6 @@ const Dashboard = () => {
 
   return (
     <>
-      {/* <div>{!isLoading && users.length}</div>
-      <div>{data.running}</div> */}
       <CCard className="mb-4">
         <CCardHeader>
           <h3 className="card-title text-center my-2">Overall Statistics</h3>

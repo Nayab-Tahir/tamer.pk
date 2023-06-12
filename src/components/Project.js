@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
 import {
   CAvatar,
@@ -37,7 +38,12 @@ const Projects = ({ status }) => {
     }
   })
 
-  !isLoading && !isFetching && dispatch(setProjects(allProjects))
+  useEffect(() => {
+    if (!isLoading && !isFetching) {
+      dispatch(setProjects(allProjects))
+    }
+  }, [isLoading, isFetching])
+
   const showProject = (project) => {
     dispatch(setCurrentProject(project))
     navigate('/showProject')
