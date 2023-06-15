@@ -60,7 +60,6 @@ const ProjectDetails = () => {
   const [showProjectDetailsModal, setShowProjectDetailsModal] = useState(false)
   const [showProjectScheduleModal, setShowProjectScheduleModal] = useState(false)
 
-  console.log(detailTrackers)
   const getDaysList = (days) => {
     let daysList = []
     let step = 0
@@ -109,10 +108,13 @@ const ProjectDetails = () => {
         }
       }
       while (remainingDays >= 30) {
-        if (calculate === true) {
+        if (calculate) {
           percent = (percentages[index] / days[index]) * 30
         }
         percentageList.push(percent)
+        if (!calculate) {
+          percent = (percentages[index] / days[index]) * 30
+        }
         remainingDays -= 30
         calculate = true
       }
@@ -132,6 +134,7 @@ const ProjectDetails = () => {
     if (state.currentProject == undefined || Object.keys(state.currentProject).length === 0) {
       navigate('/allProjects')
     }
+    console.log(state.currentProject)
   }, [state.currentProject])
 
   const updateProjectsLocally = (values, isUpdating) => {
@@ -427,6 +430,35 @@ const ProjectDetails = () => {
                         },
                       },
                     },
+                  }}
+                />
+                <CChart
+                  type="bar"
+                  data={{
+                    labels: ['Project Cost'],
+                    datasets: [
+                      {
+                        label: 'Estimated Cost',
+                        backgroundColor: 'blue',
+                        data: [
+                          Math.round(
+                            (state.currentProject.estimatedCost /
+                              state.currentProject.estimatedNumberOfDays) *
+                              state.currentProject.spentNumberOfDays,
+                          ),
+                        ],
+                      },
+                      {
+                        label: 'Real Cost',
+                        backgroundColor: '#e55353',
+                        data: [state.currentProject.spentCost],
+                      },
+                      {
+                        label: 'Profit',
+                        backgroundColor: '#2eb85c',
+                        data: [state.currentProject.profit],
+                      },
+                    ],
                   }}
                 />
               </div>
