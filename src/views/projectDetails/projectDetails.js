@@ -92,25 +92,39 @@ const ProjectDetails = () => {
     let percentages = details.map((detail) => detail.completionPercentage)
 
     let index = 0
-    let previousDays = 0
-    let previousPercentage = 0
-    let remainingDays, stepPercent
+    let remainingDays = 0
+    let calculate = true
+    let percent = 0
+
     while (index < days.length) {
-      remainingDays = days[index] + previousDays
-      stepPercent =
-        (previousPercentage / 30) * previousDays +
-        (percentages[index] / days[index]) * (30 - previousDays)
-      percentageList.push(stepPercent)
-      remainingDays -= 30
-      stepPercent = (percentages[index] / days[index]) * 30
-      while (remainingDays >= 30) {
-        percentageList.push(stepPercent)
-        remainingDays -= 30
+      if (remainingDays > 0) {
+        percent =
+          (percent / 30) * remainingDays + (percentages[index] / days[index]) * (30 - remainingDays)
+        remainingDays += days[index]
+        calculate = false
+      } else {
+        remainingDays += days[index]
+        if (remainingDays < 30) {
+          percent = (percentages[index] / days[index]) * 30
+        }
       }
-      previousDays = remainingDays
-      previousPercentage = stepPercent
+      while (remainingDays >= 30) {
+        if (calculate === true) {
+          percent = (percentages[index] / days[index]) * 30
+        }
+        percentageList.push(percent)
+        remainingDays -= 30
+        calculate = true
+      }
       index += 1
     }
+
+    let previous = 0
+    percentageList = percentageList.map((num) => {
+      let answer = num + previous
+      previous = answer
+      return answer
+    })
     return percentageList
   }
 
@@ -364,6 +378,60 @@ const ProjectDetails = () => {
         </div>
       ) : (
         <>
+          <CModal
+            visible={showProjectScheduleModal}
+            onClose={() => setShowProjectScheduleModal(false)}
+            alignment="center"
+          >
+            <CModalHeader>
+              <CModalTitle>{state.currentProject.name} Schedule</CModalTitle>
+            </CModalHeader>
+            <CModalBody>
+              <div>
+                <h3>Project Progress</h3>
+                <CChart
+                  type="line"
+                  data={{
+                    labels: getDaysList(state.currentProject.estimatedNumberOfDays),
+                    datasets: [
+                      {
+                        label: 'Projected Percentage',
+                        data: getProjectedXAxis(state.currentProject.estimatedNumberOfDays),
+                        backgroundColor: 'transparent',
+                        borderColor: 'blue',
+                        pointHoverBackgroundColor: 'blue',
+                        borderWidth: 2,
+                        lineTension: 0.4,
+                      },
+                      {
+                        label: 'Completion Percentage',
+                        data: getRealXAxis(
+                          detailTrackers,
+                          state.currentProject.estimatedNumberOfDays,
+                        ),
+                        backgroundColor: 'transparent',
+                        borderColor: 'green',
+                        pointHoverBackgroundColor: 'blue',
+                        borderWidth: 2,
+                        lineTension: 0.4,
+                      },
+                    ],
+                  }}
+                  options={{
+                    scales: {
+                      y: {
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                          stepSize: 10,
+                        },
+                      },
+                    },
+                  }}
+                />
+              </div>
+            </CModalBody>
+          </CModal>
           {detailTrackers && detailTrackers.length > 0 && (
             <CCard>
               <CCardHeader>Details</CCardHeader>
@@ -561,58 +629,6 @@ const ProjectDetails = () => {
               <td>{state.currentProject.completionPercentage} %</td>
             </tr>
           </CTable>
-        </CModalBody>
-      </CModal>
-
-      <CModal
-        visible={showProjectScheduleModal}
-        onClose={() => setShowProjectScheduleModal(false)}
-        alignment="center"
-      >
-        <CModalHeader>
-          <CModalTitle>{state.currentProject.name} Schedule</CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-          <div>
-            <h3>Project Progress</h3>
-            <CChart
-              type="line"
-              data={{
-                labels: getDaysList(state.currentProject.estimatedNumberOfDays),
-                datasets: [
-                  {
-                    label: 'Projected Percentage',
-                    data: getProjectedXAxis(state.currentProject.estimatedNumberOfDays),
-                    backgroundColor: 'transparent',
-                    borderColor: 'blue',
-                    pointHoverBackgroundColor: 'blue',
-                    borderWidth: 2,
-                    lineTension: 0.4,
-                  },
-                  {
-                    label: 'Completion Percentage',
-                    data: getRealXAxis(detailTrackers, state.currentProject.estimatedNumberOfDays),
-                    backgroundColor: 'transparent',
-                    borderColor: 'green',
-                    pointHoverBackgroundColor: 'blue',
-                    borderWidth: 2,
-                    lineTension: 0.4,
-                  },
-                ],
-              }}
-              options={{
-                scales: {
-                  y: {
-                    min: 0,
-                    max: 100,
-                    ticks: {
-                      stepSize: 10,
-                    },
-                  },
-                },
-              }}
-            />
-          </div>
         </CModalBody>
       </CModal>
     </>
