@@ -146,15 +146,17 @@ const Dashboard = () => {
           </CRow>
           <CRow className="mx-5 px-5">
             <div className="text-center mt-2">
-              <h5>Completion ({(rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs || 1)}%)</h5>
+              <h5>
+                Completion ({Math.round((rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs || 1))}%)
+              </h5>
             </div>
             <div className="px-5">
               <CProgress
                 className="mb-3 mx-5 px-0"
                 color="success"
-                value={Math.floor((rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs || 1))}
+                value={Math.round((rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs || 1))}
               >
-                {(rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs)}%
+                {Math.round((rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs))}%
               </CProgress>
             </div>
           </CRow>

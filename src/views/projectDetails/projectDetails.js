@@ -535,7 +535,7 @@ const ProjectDetails = () => {
                     datasets: [
                       {
                         label: 'Estimated Days',
-                        backgroundColor: '#e55353',
+                        backgroundColor: 'blue',
                         data: [state.currentProject.estimatedNumberOfDays],
                       },
                       {
@@ -543,6 +543,25 @@ const ProjectDetails = () => {
                         backgroundColor: '#2eb85c',
                         data: [state.currentProject.spentNumberOfDays],
                       },
+                      state.currentProject.estimatedNumberOfDays -
+                        state.currentProject.spentNumberOfDays >=
+                      0
+                        ? {
+                            label: 'Remaining Days',
+                            backgroundColor: '#e55353',
+                            data: [
+                              state.currentProject.estimatedNumberOfDays -
+                                state.currentProject.spentNumberOfDays,
+                            ],
+                          }
+                        : {
+                            label: 'Days Overrun',
+                            backgroundColor: '#e55353',
+                            data: [
+                              state.currentProject.spentNumberOfDays -
+                                state.currentProject.estimatedNumberOfDays,
+                            ],
+                          },
                     ],
                   }}
                 />
