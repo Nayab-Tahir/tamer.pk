@@ -7,6 +7,7 @@ import {
   CCardBody,
   CCardImage,
   CCardTitle,
+  CFormInput,
   CCardText,
   CTable,
   CCardHeader,
@@ -17,8 +18,8 @@ import {
   setCurrentProjectPreviousStatus,
   setLoading,
   setProjects,
-  setProjectsRefetch,
 } from 'src/store/slices/main'
+import {} from '@coreui/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
@@ -32,6 +33,8 @@ const Projects = ({ status }) => {
     isFetching,
     refetch: refetchProjects,
   } = useGetAllProjectsByUserIdQuery(state.userId)
+
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -78,48 +81,95 @@ const Projects = ({ status }) => {
       if (status === 'ALL') return project
       return false
     })
-    return filteredProject.length > 0
-      ? filteredProject.map((project, key) => (
-          <CCard className="mb-3 pointer-cursor" key={key} onClick={() => showProject(project)}>
-            {/* <CCardImage orientation="top" src={completedProject} /> */}
-            <CCardHeader
-              className={`${
-                state.currentProject?._id?.toString() === project._id.toString()
-                  ? 'border border-danger'
-                  : ''
-              }`}
-            >
-              {project.name}
-            </CCardHeader>
-            <CCardBody>
-              <CCardText>{project.description}</CCardText>
-              <CTable borderless>
-                <tr>
-                  <td>Revenue</td>
-                  <td>Rs. {project.revenue}</td>
-                </tr>
-                <tr>
-                  <td>Estimated Cost</td>
-                  <td>Rs. {project.estimatedCost}</td>
-                </tr>
-                <tr>
-                  <td>Profit</td>
-                  <td>Rs. {project.profit}</td>
-                </tr>
-                <tr>
-                  <td>Estimated Time</td>
-                  <td>{project.estimatedNumberOfDays} days</td>
-                </tr>
-              </CTable>
-              <div className="text-center">
-                <CButton type="button" color="success" variant="outline">
-                  Show Details
-                </CButton>
-              </div>
-            </CCardBody>
-          </CCard>
-        ))
-      : handleNoFilteredProjects()
+    return (
+      <>
+        <CCard className="mb-3">
+          <CCardBody className="d-flex">
+            <CFormInput
+              type="text"
+              className="searchProjectsInput"
+              placeholder="Search Projects by fields"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
+            />
+          </CCardBody>
+        </CCard>
+        {filteredProject.length > 0
+          ? filteredProject
+              .filter((project) => {
+                if (searchQuery.length > 0) {
+                  if (project.name.toLowerCase().includes(searchQuery)) return true
+                  if (project.description.toLowerCase().includes(searchQuery)) return true
+                  if (project.area.toString().toLowerCase().includes(searchQuery)) return true
+                  if (project.estimatedCost.toString().toLowerCase().includes(searchQuery))
+                    return true
+                  if (project.estimatedNumberOfDays.toString().toLowerCase().includes(searchQuery))
+                    return true
+                  if (project.spentNumberOfDays.toString().toLowerCase().includes(searchQuery))
+                    return true
+
+                  if (project.completionPercentage.toString().toLowerCase().includes(searchQuery))
+                    return true
+
+                  if (project.revenue.toString().toLowerCase().includes(searchQuery)) return true
+                  if (project.profit.toString().toLowerCase().includes(searchQuery)) return true
+                  if (project.spentCost.toString().toLowerCase().includes(searchQuery)) return true
+                  if (project.status.toLowerCase().includes(searchQuery)) return true
+                  if (project.address.streetAddress.toString().toLowerCase().includes(searchQuery))
+                    return true
+                  if (project.address.country.toString().toLowerCase().includes(searchQuery))
+                    return true
+                  if (project.address.zipCode.toLowerCase().includes(searchQuery)) return true
+                } else return true
+                return false
+              })
+              .map((project, key) => (
+                <CCard
+                  className="mb-3 pointer-cursor"
+                  key={key}
+                  onClick={() => showProject(project)}
+                >
+                  {/* <CCardImage orientation="top" src={completedProject} /> */}
+                  <CCardHeader
+                    className={`${
+                      state.currentProject?._id?.toString() === project._id.toString()
+                        ? 'border border-danger'
+                        : ''
+                    }`}
+                  >
+                    {project.name}
+                  </CCardHeader>
+                  <CCardBody>
+                    <CCardText>{project.description}</CCardText>
+                    <CTable borderless>
+                      <tr>
+                        <td>Revenue</td>
+                        <td>Rs. {project.revenue}</td>
+                      </tr>
+                      <tr>
+                        <td>Estimated Cost</td>
+                        <td>Rs. {project.estimatedCost}</td>
+                      </tr>
+                      <tr>
+                        <td>Profit</td>
+                        <td>Rs. {project.profit}</td>
+                      </tr>
+                      <tr>
+                        <td>Estimated Time</td>
+                        <td>{project.estimatedNumberOfDays} days</td>
+                      </tr>
+                    </CTable>
+                    <div className="text-center">
+                      <CButton type="button" color="success" variant="outline">
+                        Show Details
+                      </CButton>
+                    </div>
+                  </CCardBody>
+                </CCard>
+              ))
+          : handleNoFilteredProjects()}
+      </>
+    )
   }
   const handleLoadingState = () => {
     dispatch(setLoading(true))

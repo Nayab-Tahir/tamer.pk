@@ -58,6 +58,7 @@ const ProjectDetails = () => {
   const [showDetailsTrackerDetailsModal, setShowDetailsTrackerDetailsModal] = useState(false)
   const [showProjectDetailsModal, setShowProjectDetailsModal] = useState(false)
   const [showProjectScheduleModal, setShowProjectScheduleModal] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const getDaysList = (days) => {
     let daysList = []
@@ -364,9 +365,19 @@ const ProjectDetails = () => {
     }
   }
 
-  console.log('STATE: ', state)
   return (
     <>
+      <CCard className="mb-3">
+        <CCardBody className="d-flex">
+          <CFormInput
+            type="text"
+            className="searchProjectsInput"
+            placeholder="Search Details by fields"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
+          />
+        </CCardBody>
+      </CCard>
       <CCard className="mb-3 pointer-cursor" onClick={() => setShowProjectDetailsModal(true)}>
         {/* <CCardImage orientation="top" src={completedProject} /> */}
         <CCardHeader>{state.currentProject.name}</CCardHeader>
@@ -572,15 +583,37 @@ const ProjectDetails = () => {
             <CCard>
               <CCardHeader>Details</CCardHeader>
               <CCardBody>
-                {detailTrackers.map((detailTracker, index) => (
-                  <DetailTracker
-                    key={index}
-                    detailTracker={detailTracker}
-                    onUpdate={handleUpdateDetailTracker}
-                    onDelete={handleDeleteDetailTracker}
-                    onClick={() => handleClickDetailTracker(detailTracker)}
-                  />
-                ))}
+                {detailTrackers
+                  .filter((detailTracker) => {
+                    if (searchQuery.length > 0) {
+                      if (detailTracker.description.toLowerCase().includes(searchQuery)) return true
+                      if (detailTracker.revenue.toString().toLowerCase().includes(searchQuery))
+                        return true
+                      if (detailTracker.profit.toString().toLowerCase().includes(searchQuery))
+                        return true
+                      if (detailTracker.cost.toString().toLowerCase().includes(searchQuery))
+                        return true
+                      if (detailTracker.numberOfDays.toString().toLowerCase().includes(searchQuery))
+                        return true
+                      if (
+                        detailTracker.completionPercentage
+                          .toString()
+                          .toLowerCase()
+                          .includes(searchQuery)
+                      )
+                        return true
+                    } else return true
+                    return false
+                  })
+                  .map((detailTracker, index) => (
+                    <DetailTracker
+                      key={index}
+                      detailTracker={detailTracker}
+                      onUpdate={handleUpdateDetailTracker}
+                      onDelete={handleDeleteDetailTracker}
+                      onClick={() => handleClickDetailTracker(detailTracker)}
+                    />
+                  ))}
               </CCardBody>
             </CCard>
           )}
