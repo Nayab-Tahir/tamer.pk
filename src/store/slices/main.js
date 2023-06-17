@@ -18,6 +18,7 @@ const initialState = {
   refetchProjects: false,
   currentDetailsTracker: {},
   projects: [],
+  currentProjectPreviousStatus: '',
 }
 
 const Main = createSlice({
@@ -91,6 +92,10 @@ const Main = createSlice({
     setProjects(state, action) {
       state.projects = action.payload
     },
+
+    setCurrentProjectPreviousStatus(state, action) {
+      state.currentProjectPreviousStatus = action.payload
+    },
   },
 })
 
@@ -106,5 +111,6 @@ export const {
   setRefetchProjects,
   setCurrentDetailTracker,
   setProjects,
+  setCurrentProjectPreviousStatus,
 } = Main.actions
 export const MainReducer = Main.reducer

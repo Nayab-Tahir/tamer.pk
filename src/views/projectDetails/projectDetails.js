@@ -145,16 +145,25 @@ const ProjectDetails = () => {
           profit: state.currentProject.profit - state.currentDetailsTracker.profit + values.profit,
           completionPercentage:
             state.currentProject.completionPercentage -
-            state.currentDetailsTracker.completionPercentage +
-            values.completionPercentage,
+              state.currentDetailsTracker.completionPercentage +
+              values.completionPercentage >
+            100
+              ? 100
+              : state.currentProject.completionPercentage -
+                state.currentDetailsTracker.completionPercentage +
+                values.completionPercentage,
           revenue:
             state.currentProject.revenue - state.currentDetailsTracker.revenue + values.revenue,
           spentCost:
             state.currentProject.spentCost - state.currentDetailsTracker.cost + values.cost,
           spentNumberOfDays:
-            state.currentProject.spentNumberOfDays -
-            state.currentDetailsTracker.numberOfDays +
-            values.numberOfDays,
+            parseInt(state.currentProject.spentNumberOfDays.toString()) -
+            parseInt(state.currentDetailsTracker.numberOfDays.toString()) +
+            parseInt(values.numberOfDays.toString()),
+          ...(state.currentProject.completionPercentage -
+            state.currentDetailsTracker.completionPercentage +
+            values.completionPercentage >=
+            100 && { status: 'COMPLETED' }),
         }),
       )
     } else {
@@ -163,10 +172,17 @@ const ProjectDetails = () => {
           ...state.currentProject,
           profit: state.currentProject.profit + values.profit,
           completionPercentage:
-            state.currentProject.completionPercentage + values.completionPercentage,
+            state.currentProject.completionPercentage + values.completionPercentage > 100
+              ? 100
+              : state.currentProject.completionPercentage + values.completionPercentage,
           revenue: state.currentProject.revenue + values.revenue,
           spentCost: state.currentProject.spentCost + values.cost,
-          spentNumberOfDays: state.currentProject.spentNumberOfDays + values.numberOfDays,
+          spentNumberOfDays:
+            parseInt(state.currentProject.spentNumberOfDays.toString()) +
+            parseInt(values.numberOfDays.toString()),
+          ...(state.currentProject.completionPercentage + values.completionPercentage >= 100 && {
+            status: 'COMPLETED',
+          }),
         }),
       )
     }
@@ -200,7 +216,11 @@ const ProjectDetails = () => {
           state.currentProject.completionPercentage - detailTracker.completionPercentage,
         revenue: state.currentProject.revenue - detailTracker.revenue,
         spentCost: state.currentProject.spentCost - detailTracker.cost,
-        spentNumberOfDays: state.currentProject.spentNumberOfDays - detailTracker.numberOfDays,
+        spentNumberOfDays:
+          parseInt(state.currentProject.spentNumberOfDays.toString()) -
+          parseInt(detailTracker.numberOfDays.toString()),
+        ...(state.currentProject.completionPercentage - detailTracker.completionPercentage <
+          100 && { status: 'ACTIVE' }),
       }),
     )
   }
@@ -305,6 +325,9 @@ const ProjectDetails = () => {
     numberOfDays: state.currentDetailsTracker.numberOfDays,
   }
 
+  const computeProjectStatus = (completionPercentage) =>
+    completionPercentage >= 100 ? 'COMPLETED' : 'ACTIVE'
+
   return (
     <>
       <CCard className="mb-3 pointer-cursor" onClick={() => setShowProjectDetailsModal(true)}>
@@ -356,19 +379,21 @@ const ProjectDetails = () => {
             >
               Show Schedule
             </CButton>
-            <CButton
-              type="button"
-              color="success"
-              variant="outline"
-              onClick={(event) => {
-                event.stopPropagation()
-                setShowDetailsTrackerModal(true)
-                setIsDetailTrackerUpdating(false)
-              }}
-              className="me-3"
-            >
-              Add Progress Details
-            </CButton>
+            {state.currentProject.status === 'ACTIVE' && (
+              <CButton
+                type="button"
+                color="success"
+                variant="outline"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setShowDetailsTrackerModal(true)
+                  setIsDetailTrackerUpdating(false)
+                }}
+                className="me-3"
+              >
+                Add Progress Details
+              </CButton>
+            )}
             <CButton type="button" color="secondary" variant="outline">
               Show Details
             </CButton>
@@ -443,8 +468,8 @@ const ProjectDetails = () => {
                         data: [
                           Math.round(
                             (state.currentProject.estimatedCost /
-                              state.currentProject.estimatedNumberOfDays) *
-                              state.currentProject.spentNumberOfDays,
+                              parseInt(state.currentProject.estimatedNumberOfDays.toString())) *
+                              parseInt(state.currentProject.spentNumberOfDays.toString()),
                           ),
                         ],
                       },
