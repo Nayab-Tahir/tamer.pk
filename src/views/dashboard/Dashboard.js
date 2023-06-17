@@ -320,7 +320,7 @@ const Dashboard = () => {
                 </tr>
                 <tr>
                   <td>Time/Project</td>
-                  <td>{spentMonthsPerCmPs} Months</td>
+                  <td>{Math.round(spentMonthsPerCmPs)} Months</td>
                 </tr>
               </CTable>
               <div className="text-center">
