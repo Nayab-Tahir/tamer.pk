@@ -15,7 +15,6 @@ const initialState = {
   sidebarShow: true,
   sidebarFolded: false,
   currentProject: {},
-  refetchProjects: false,
   currentDetailsTracker: {},
   projects: [],
   currentProjectPreviousStatus: '',
@@ -81,10 +80,6 @@ const Main = createSlice({
       state.currentProject = action.payload
     },
 
-    setRefetchProjects(state, action) {
-      state.refetchProjects = action.payload
-    },
-
     setCurrentDetailTracker(state, action) {
       state.currentDetailsTracker = action.payload
     },
@@ -108,7 +103,6 @@ export const {
   setSidebarShow,
   setSidebarFolded,
   setCurrentProject,
-  setRefetchProjects,
   setCurrentDetailTracker,
   setProjects,
   setCurrentProjectPreviousStatus,

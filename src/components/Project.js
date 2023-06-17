@@ -14,9 +14,10 @@ import {
 import { useGetAllProjectsByUserIdQuery } from 'src/store/rtk-query'
 import {
   setCurrentProject,
+  setCurrentProjectPreviousStatus,
   setLoading,
   setProjects,
-  setRefetchProjects,
+  setProjectsRefetch,
 } from 'src/store/slices/main'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -31,12 +32,15 @@ const Projects = ({ status }) => {
     isFetching,
     refetch: refetchProjects,
   } = useGetAllProjectsByUserIdQuery(state.userId)
+
   useEffect(() => {
-    if (state.refetchProjects === true) {
-      refetchProjects()
-      dispatch(setRefetchProjects(false))
+    const fetchProjects = async () => {
+      const projects = await refetchProjects()
+      dispatch(setProjects(projects.data))
     }
-  })
+
+    fetchProjects()
+  }, [])
 
   useEffect(() => {
     if (!isLoading && !isFetching) {
@@ -46,8 +50,10 @@ const Projects = ({ status }) => {
 
   const showProject = (project) => {
     dispatch(setCurrentProject(project))
+    dispatch(setCurrentProjectPreviousStatus(project.status))
     navigate('/showProject')
   }
+
   const renderProjects = () => {
     dispatch(setLoading(false))
     const handleNoFilteredProjects = () => {
@@ -76,7 +82,15 @@ const Projects = ({ status }) => {
       ? filteredProject.map((project, key) => (
           <CCard className="mb-3 pointer-cursor" key={key} onClick={() => showProject(project)}>
             {/* <CCardImage orientation="top" src={completedProject} /> */}
-            <CCardHeader>{project.name}</CCardHeader>
+            <CCardHeader
+              className={`${
+                state.currentProject?._id?.toString() === project._id.toString()
+                  ? 'border border-danger'
+                  : ''
+              }`}
+            >
+              {project.name}
+            </CCardHeader>
             <CCardBody>
               <CCardText>{project.description}</CCardText>
               <CTable borderless>

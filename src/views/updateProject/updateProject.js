@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useUpdateSingleProjectMutation } from 'src/store/rtk-query'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
-import { setLoading, setRefetchProjects } from 'src/store/slices/main'
+import { setLoading } from 'src/store/slices/main'
 
 const UpdateProject = () => {
   const navigation = useNavigate()
@@ -58,7 +58,6 @@ const UpdateProject = () => {
       }).unwrap()
       if (response) {
         actions.resetForm()
-        dispatch(setRefetchProjects(true))
         navigation('/allProjects')
         toast.success(`${response.name || ''} Project is updated.`)
       } else {

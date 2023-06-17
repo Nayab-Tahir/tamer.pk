@@ -32,9 +32,8 @@ import { toast } from 'react-toastify'
 import {
   setCurrentDetailTracker,
   setCurrentProject,
+  setCurrentProjectPreviousStatus,
   setLoading,
-  setProjects,
-  setRefetchProjects,
 } from 'src/store/slices/main'
 import { Formik } from 'formik'
 import { detailsTrackerSchema } from './detailTracker.schema'
@@ -195,7 +194,6 @@ const ProjectDetails = () => {
       if (response) {
         toast.success(`Project ${state.currentProject.name} is deleted successfully!`)
         dispatch(setCurrentProject({}))
-        dispatch(setRefetchProjects(true))
         navigate('/allProjects')
       }
     } catch (error) {
@@ -236,8 +234,10 @@ const ProjectDetails = () => {
       if (response) {
         toast.success('Project details object is deleted')
         dispatch(setCurrentDetailTracker({}))
-        dispatch(setRefetchProjects(true))
         detailTrackersRefetch(state.currentProject._id)
+        checkProjectStatusChangeAndNavigate(
+          state.currentProject.completionPercentage - detailTracker.completionPercentage,
+        )
       }
     } catch (error) {
       console.error('Something went wrong: ', error)
@@ -257,6 +257,22 @@ const ProjectDetails = () => {
   }
 
   const handleSubmit = async (values, actions) => {
+    if (isDetailTrackerUpdating) {
+      if (
+        state.currentProject.completionPercentage -
+          state.currentDetailsTracker.completionPercentage +
+          values.completionPercentage >
+        100
+      ) {
+        toast.error('Project completion percentage must be less than 100!')
+        return
+      }
+    } else {
+      if (state.currentProject.completionPercentage + values.completionPercentage > 100) {
+        toast.error('Project completion percentage must be less than 100!')
+        return
+      }
+    }
     dispatch(setLoading(true))
     try {
       let response = {}
@@ -290,8 +306,17 @@ const ProjectDetails = () => {
         toast.success(`Project details are ${isDetailTrackerUpdating ? 'Updated' : 'Added'}.`)
         setShowDetailsTrackerModal(false)
         detailTrackersRefetch(state.currentProject._id)
-        dispatch(setRefetchProjects(true))
         dispatch(setLoading(false))
+        if (isDetailTrackerUpdating) {
+          checkProjectStatusChangeAndNavigate(
+            state.currentProject.completionPercentage -
+              state.currentDetailsTracker.completionPercentage +
+              values.completionPercentage,
+          )
+        } else
+          checkProjectStatusChangeAndNavigate(
+            state.currentProject.completionPercentage + values.completionPercentage,
+          )
       } else {
         toast.error('Something went wrong please try again later!')
         actions.resetForm()
@@ -328,6 +353,18 @@ const ProjectDetails = () => {
   const computeProjectStatus = (completionPercentage) =>
     completionPercentage >= 100 ? 'COMPLETED' : 'ACTIVE'
 
+  const checkProjectStatusChangeAndNavigate = (completionPercentage) => {
+    const projectCurrentStatusLocally = computeProjectStatus(completionPercentage)
+    if (state.currentProjectPreviousStatus !== projectCurrentStatusLocally) {
+      projectCurrentStatusLocally === 'ACTIVE'
+        ? navigate('/runningProjects')
+        : navigate('/completedProjects')
+      toast.warning('Project status has been changed, you are redirecting!')
+      dispatch(setCurrentProjectPreviousStatus(projectCurrentStatusLocally))
+    }
+  }
+
+  console.log('STATE: ', state)
   return (
     <>
       <CCard className="mb-3 pointer-cursor" onClick={() => setShowProjectDetailsModal(true)}>
@@ -684,6 +721,11 @@ const ProjectDetails = () => {
             <tr>
               <td>Completion percentage</td>
               <td>{state.currentProject.completionPercentage} %</td>
+            </tr>
+
+            <tr>
+              <td>Project Status</td>
+              <td>{state.currentProject.status}</td>
             </tr>
           </CTable>
         </CModalBody>

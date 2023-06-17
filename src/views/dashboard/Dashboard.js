@@ -48,6 +48,15 @@ const Dashboard = () => {
     }
   }, [isLoading, isFetching])
 
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const projects = await refetchProjects()
+      dispatch(setProjects(projects.data))
+    }
+
+    fetchProjects()
+  }, [])
+
   const findCount = () => {
     let rnPs = 0
     let cmPs = 0
@@ -61,8 +70,6 @@ const Dashboard = () => {
     let cmProfit = 0
     let spentDays = 0
     let spentMonthsPerCmPs = 0
-
-    console.log(allProjects)
 
     allProjects.forEach((item) => {
       if (item.status === 'ACTIVE') {
