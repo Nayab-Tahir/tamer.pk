@@ -158,6 +158,10 @@ const Projects = ({ status }) => {
                         <td>Estimated Time</td>
                         <td>{project.estimatedNumberOfDays} days</td>
                       </tr>
+                      <tr>
+                        <td>Project Status</td>
+                        <td>{project.status}</td>
+                      </tr>
                     </CTable>
                     <div className="text-center">
                       <CButton type="button" color="success" variant="outline">
