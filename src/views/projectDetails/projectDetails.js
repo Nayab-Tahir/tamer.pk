@@ -453,7 +453,7 @@ const ProjectDetails = () => {
             </CModalHeader>
             <CModalBody>
               <div>
-                <h3>Project Progress</h3>
+                <h5>Project Progress</h5>
                 <CChart
                   type="line"
                   data={{
@@ -494,6 +494,7 @@ const ProjectDetails = () => {
                     },
                   }}
                 />
+                <h5>Cost Comparison</h5>
                 <CChart
                   type="bar"
                   data={{
@@ -506,7 +507,10 @@ const ProjectDetails = () => {
                           Math.round(
                             (state.currentProject.estimatedCost /
                               parseInt(state.currentProject.estimatedNumberOfDays.toString())) *
-                              parseInt(state.currentProject.spentNumberOfDays.toString()),
+                              (parseInt(state.currentProject.spentNumberOfDays.toString()) >
+                              parseInt(state.currentProject.estimatedNumberOfDays.toString())
+                                ? parseInt(state.currentProject.estimatedNumberOfDays.toString())
+                                : parseInt(state.currentProject.spentNumberOfDays.toString())),
                           ),
                         ],
                       },
@@ -519,6 +523,25 @@ const ProjectDetails = () => {
                         label: 'Profit',
                         backgroundColor: '#2eb85c',
                         data: [state.currentProject.profit],
+                      },
+                    ],
+                  }}
+                />
+                <h5>Days Comparison</h5>
+                <CChart
+                  type="bar"
+                  data={{
+                    labels: ['Days'],
+                    datasets: [
+                      {
+                        label: 'Estimated Days',
+                        backgroundColor: '#e55353',
+                        data: [state.currentProject.estimatedNumberOfDays],
+                      },
+                      {
+                        label: 'Spent Days',
+                        backgroundColor: '#2eb85c',
+                        data: [state.currentProject.spentNumberOfDays],
                       },
                     ],
                   }}
