@@ -63,7 +63,7 @@ const ProjectDetails = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchSelectInputValue, setSearchSelectInputValue] = useState('description')
   const [currentPage, setCurrentPage] = useState(0)
-  const itemsPerPage = 10
+  const itemsPerPage = 5
 
   const filterSelectOptions = [
     { label: 'Description', value: 'description' },

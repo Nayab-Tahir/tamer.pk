@@ -194,9 +194,6 @@ const Dropdowns = () => {
             <DocsExample href="components/dropdown#dark-dropdowns">
               <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div className="container-fluid">
-                  <a className="navbar-brand" href="https://coreui.io/react/">
-                    Navbar
-                  </a>
                   <button
                     className="navbar-toggler"
                     type="button"
