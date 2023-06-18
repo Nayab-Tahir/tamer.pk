@@ -18,6 +18,8 @@ import {
   CSpinner,
   CCardHeader,
   CFormSelect,
+  CInputGroup,
+  CInputGroupText,
 } from '@coreui/react'
 import { CChart } from '@coreui/react-chartjs'
 import {
@@ -40,6 +42,7 @@ import { Formik } from 'formik'
 import { detailsTrackerSchema } from './detailTracker.schema'
 import DetailTracker from 'src/components/DetailTracker'
 import ReactPaginate from 'react-paginate'
+import moment from 'moment'
 
 const ProjectDetails = () => {
   const navigate = useNavigate()
@@ -63,7 +66,9 @@ const ProjectDetails = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchSelectInputValue, setSearchSelectInputValue] = useState('description')
   const [currentPage, setCurrentPage] = useState(0)
-  const itemsPerPage = 5
+  const [sortFieldValue, setSortFieldValue] = useState('updatedAt')
+  const [ascendingSort, setAscendingSort] = useState(true)
+  const itemsPerPage = 10
 
   const filterSelectOptions = [
     { label: 'Description', value: 'description' },
@@ -73,6 +78,38 @@ const ProjectDetails = () => {
     { label: 'Completion percentage', value: 'completionPercentage' },
     { label: 'Number of days', value: 'numberOfDays' },
   ]
+
+  const sortSelectOptions = [
+    {
+      label: 'Last modified',
+      value: 'updatedAt',
+    },
+    {
+      label: 'Creation date',
+      value: 'createdAt',
+    },
+    {
+      label: 'Completion percentage',
+      value: 'completionPercentage',
+    },
+    {
+      label: 'Number of days',
+      value: 'numberOfDays',
+    },
+    {
+      label: 'Profit',
+      value: 'profit',
+    },
+    {
+      label: 'Revenue',
+      value: 'revenue',
+    },
+    {
+      label: 'Cost',
+      value: 'cost',
+    },
+  ]
+
   const getDaysList = (days) => {
     let daysList = []
     let step = 0
@@ -147,7 +184,6 @@ const ProjectDetails = () => {
     if (state.currentProject == undefined || Object.keys(state.currentProject).length === 0) {
       navigate('/allProjects')
     }
-    console.log(state.currentProject)
   }, [state.currentProject])
 
   const updateProjectsLocally = (values, isUpdating) => {
@@ -424,49 +460,134 @@ const ProjectDetails = () => {
 
   const offset = currentPage * itemsPerPage
   const pageCount = Math.ceil(detailTrackers.length / itemsPerPage)
-  const paginatedDetailsTracker = detailTrackers
-    .filter(detailsQueryFilter)
-    .slice(offset, offset + itemsPerPage)
+
+  const handleSortSelectFieldChange = (event) => {
+    setSortFieldValue(event.target.value)
+  }
+
+  const sortDetailsTracker = (detailsTrackerInput) =>
+    detailsTrackerInput.sort((a, b) => {
+      let sortValueA, sortValueB
+      switch (sortFieldValue) {
+        case 'updatedAt':
+          sortValueA = moment(a.updatedAt).milliseconds()
+          sortValueB = moment(b.updatedAt).milliseconds()
+          break
+        case 'createdAt':
+          sortValueA = moment(a.createdAt).milliseconds()
+          sortValueB = moment(b.createdAt).milliseconds()
+          break
+        case 'completionPercentage':
+          sortValueA = a.completionPercentage
+          sortValueB = b.completionPercentage
+          break
+        case 'cost':
+          sortValueA = a.cost
+          sortValueB = b.cost
+          break
+        case 'numberOfDays':
+          sortValueA = a.numberOfDays
+          sortValueB = b.numberOfDays
+          break
+        case 'profit':
+          sortValueA = a.profit
+          sortValueB = b.profit
+          break
+        case 'revenue':
+          sortValueA = a.revenue
+          sortValueB = b.revenue
+          break
+        default:
+          // Handle the default case here
+          break
+      }
+      if (typeof sortValueA === 'string' && typeof sortValueB === 'string') {
+        sortValueA = sortValueA.toLowerCase()
+        sortValueB = sortValueB.toLowerCase()
+
+        if (sortValueA < sortValueB) {
+          return ascendingSort ? -1 : 1
+        }
+        if (sortValueA > sortValueB) {
+          return ascendingSort ? 1 : -1
+        }
+        return 0
+      }
+
+      if (ascendingSort) {
+        return sortValueA - sortValueB
+      } else {
+        return sortValueB - sortValueA
+      }
+    })
+
+  const paginatedDetailsTracker = sortDetailsTracker(
+    detailTrackers.filter(detailsQueryFilter).slice(offset, offset + itemsPerPage),
+  )
 
   return (
     <>
-      <div className="d-flex">
-        <CCard className="mb-3 me-3 w-50">
+      <div className="d-lg-flex flex-column flex-lg-row justify-content-between">
+        <CCard className="mb-3 col-12 col-lg-6">
           <CCardHeader>Filtering Details</CCardHeader>
           <CCardBody className="d-flex">
             <CFormSelect
-              aria-label="Select filter field for projects"
+              aria-label="Select filter field for Details Tracker"
               options={filterSelectOptions}
-              className="searchProjectsSelect w-50"
+              className="me-2"
               onChange={HandleSearchSelectChange}
               value={searchSelectInputValue}
             />
             <CFormInput
               type="text"
-              className="searchProjectsInput w-50"
               placeholder="Search field"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
             />
           </CCardBody>
         </CCard>
-        <CCard className="mb-3 w-50">
+        <CCard className="mb-3 col-12 col-lg-6 mt-lg-0">
           <CCardHeader>Sorting Details</CCardHeader>
           <CCardBody className="d-flex">
-            <CFormSelect
-              aria-label="Select filter field for projects"
-              options={filterSelectOptions}
-              className="searchProjectsSelect w-50"
-              onChange={HandleSearchSelectChange}
-              value={searchSelectInputValue}
-            />
-            <CFormInput
-              type="text"
-              className="searchProjectsInput w-50"
-              placeholder="Search field"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
-            />
+            <CInputGroup>
+              <CFormSelect
+                aria-label="Select Sort field for Details Trackers"
+                onChange={handleSortSelectFieldChange}
+                value={sortFieldValue}
+              >
+                {sortSelectOptions.map((sortOption, index) => {
+                  return (
+                    <option value={sortOption.value} key={index}>
+                      {sortOption.label}
+                    </option>
+                  )
+                })}
+              </CFormSelect>
+              <CInputGroupText>
+                <CButton
+                  color={`${ascendingSort ? 'primary' : 'secondary'}`}
+                  size="sm"
+                  onClick={() => {
+                    setAscendingSort(true)
+                    sortDetailsTracker(paginatedDetailsTracker)
+                  }}
+                >
+                  ASC
+                </CButton>
+              </CInputGroupText>
+              <CInputGroupText>
+                <CButton
+                  color={`${ascendingSort ? 'secondary' : 'primary'}`}
+                  size="sm"
+                  onClick={() => {
+                    setAscendingSort(false)
+                    sortDetailsTracker(paginatedDetailsTracker)
+                  }}
+                >
+                  DESC
+                </CButton>
+              </CInputGroupText>
+            </CInputGroup>
           </CCardBody>
         </CCard>
       </div>
