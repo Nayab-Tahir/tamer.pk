@@ -20,6 +20,7 @@ import {
 import {} from '@coreui/icons'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import ReactPaginate from 'react-paginate'
 
 const Projects = ({ status }) => {
   const dispatch = useDispatch()
@@ -34,6 +35,8 @@ const Projects = ({ status }) => {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [searchSelectInputValue, setSearchSelectInputValue] = useState('name')
+  const [currentPage, setCurrentPage] = useState(0)
+  const itemsPerPage = 5
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -176,6 +179,16 @@ const Projects = ({ status }) => {
       return false
     }
 
+    const handlePageChange = (selectedPage) => {
+      setCurrentPage(selectedPage.selected)
+    }
+
+    const offset = currentPage * itemsPerPage
+    const pageCount = Math.ceil(filteredProject.length / itemsPerPage)
+    const paginatedProjects = filteredProject
+      .filter(projectsQueryFilter)
+      .slice(offset, offset + itemsPerPage)
+
     return (
       <>
         <div className="d-flex">
@@ -218,8 +231,8 @@ const Projects = ({ status }) => {
             </CCardBody>
           </CCard>
         </div>
-        {filteredProject.length > 0
-          ? filteredProject.filter(projectsQueryFilter).map((project, key) => (
+        {paginatedProjects.length > 0
+          ? paginatedProjects.map((project, key) => (
               <CCard className="mb-3" key={key}>
                 <CCardHeader
                   className={`${
@@ -268,6 +281,17 @@ const Projects = ({ status }) => {
               </CCard>
             ))
           : handleNoFilteredProjects()}
+        <ReactPaginate
+          previousLabel={'Previous'}
+          nextLabel={'Next'}
+          breakLabel={'...'}
+          pageCount={pageCount}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={5}
+          onPageChange={handlePageChange}
+          containerClassName={'pagination'}
+          activeClassName={'active'}
+        />
       </>
     )
   }

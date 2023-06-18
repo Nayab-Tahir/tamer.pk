@@ -39,6 +39,7 @@ import {
 import { Formik } from 'formik'
 import { detailsTrackerSchema } from './detailTracker.schema'
 import DetailTracker from 'src/components/DetailTracker'
+import ReactPaginate from 'react-paginate'
 
 const ProjectDetails = () => {
   const navigate = useNavigate()
@@ -49,7 +50,7 @@ const ProjectDetails = () => {
   const [updateDetailTracker] = useUpdateSingleDetailTrackerMutation()
   const [deleteDetailTracker] = useDeleteSingleDetailTrackerMutation()
   const {
-    data: detailTrackers,
+    data: detailTrackers = [],
     isLoading: detailTrackersLoading,
     isFetching: detailTrackersFetching,
     refetch: detailTrackersRefetch,
@@ -61,6 +62,8 @@ const ProjectDetails = () => {
   const [showProjectScheduleModal, setShowProjectScheduleModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchSelectInputValue, setSearchSelectInputValue] = useState('description')
+  const [currentPage, setCurrentPage] = useState(0)
+  const itemsPerPage = 10
 
   const filterSelectOptions = [
     { label: 'Description', value: 'description' },
@@ -415,6 +418,16 @@ const ProjectDetails = () => {
     return false
   }
 
+  const handlePageChange = (selectedPage) => {
+    setCurrentPage(selectedPage.selected)
+  }
+
+  const offset = currentPage * itemsPerPage
+  const pageCount = Math.ceil(detailTrackers.length / itemsPerPage)
+  const paginatedDetailsTracker = detailTrackers
+    .filter(detailsQueryFilter)
+    .slice(offset, offset + itemsPerPage)
+
   return (
     <>
       <div className="d-flex">
@@ -663,11 +676,11 @@ const ProjectDetails = () => {
               </div>
             </CModalBody>
           </CModal>
-          {detailTrackers && detailTrackers.length > 0 && (
+          {paginatedDetailsTracker && paginatedDetailsTracker.length > 0 && (
             <CCard>
               <CCardHeader>Details</CCardHeader>
               <CCardBody>
-                {detailTrackers.filter(detailsQueryFilter).map((detailTracker, index) => (
+                {paginatedDetailsTracker.map((detailTracker, index) => (
                   <DetailTracker
                     key={index}
                     detailTracker={detailTracker}
@@ -679,6 +692,17 @@ const ProjectDetails = () => {
               </CCardBody>
             </CCard>
           )}
+          <ReactPaginate
+            previousLabel={'Previous'}
+            nextLabel={'Next'}
+            breakLabel={'...'}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageChange}
+            containerClassName={'pagination'}
+            activeClassName={'active'}
+          />
         </>
       )}
       <CModal visible={showDetailsTrackerModal} onClose={() => setShowDetailsTrackerModal(false)}>
