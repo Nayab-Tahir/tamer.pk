@@ -1,16 +1,14 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react'
 import {
-  CAvatar,
   CButton,
   CCard,
   CCardBody,
-  CCardImage,
-  CCardTitle,
   CFormInput,
   CCardText,
   CTable,
   CCardHeader,
+  CFormSelect,
 } from '@coreui/react'
 import { useGetAllProjectsByUserIdQuery } from 'src/store/rtk-query'
 import {
@@ -35,6 +33,7 @@ const Projects = ({ status }) => {
   } = useGetAllProjectsByUserIdQuery(state.userId)
 
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchSelectInputValue, setSearchSelectInputValue] = useState('name')
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -56,6 +55,22 @@ const Projects = ({ status }) => {
     dispatch(setCurrentProjectPreviousStatus(project.status))
     navigate('/showProject')
   }
+
+  const filterSelectOptions = [
+    { label: 'Name', value: 'name' },
+    { label: 'Revenue', value: 'revenue' },
+    { label: 'Profit', value: 'profit' },
+    { label: 'Spent number of days', value: 'spentNumberOfDays' },
+    { label: 'Estimated number of days', value: 'estimatedNumberOfDays' },
+    { label: 'Spent cost', value: 'spentCost' },
+    { label: 'Estimated cost', value: 'estimatedCost' },
+    { label: 'Description', value: 'description' },
+    { label: 'Completion percentage', value: 'completionPercentage' },
+    { label: 'Status', value: 'status' },
+    { label: 'Street address', value: 'streetAddress' },
+    { label: 'Country', value: 'country' },
+    { label: 'Zip code', value: 'zipCode' },
+  ]
 
   const renderProjects = () => {
     dispatch(setLoading(false))
@@ -81,96 +96,177 @@ const Projects = ({ status }) => {
       if (status === 'ALL') return project
       return false
     })
+
+    const HandleSearchSelectChange = (event) => {
+      setSearchSelectInputValue(event.target.value)
+    }
+
+    const projectsQueryFilter = (project) => {
+      if (searchQuery.length > 0) {
+        if (searchSelectInputValue === 'name' && project.name.toLowerCase().includes(searchQuery))
+          return true
+        if (
+          searchSelectInputValue === 'description' &&
+          project.description.toLowerCase().includes(searchQuery)
+        )
+          return true
+        if (
+          searchSelectInputValue === 'area' &&
+          project.area.toString().toLowerCase().includes(searchQuery)
+        )
+          return true
+        if (
+          searchSelectInputValue === 'estimatedCost' &&
+          project.estimatedCost.toString().toLowerCase().includes(searchQuery)
+        )
+          return true
+        if (
+          searchSelectInputValue === 'estimatedNumberOfDays' &&
+          project.estimatedNumberOfDays.toString().toLowerCase().includes(searchQuery)
+        )
+          return true
+        if (
+          searchSelectInputValue === 'spentNumberOfDays' &&
+          project.spentNumberOfDays.toString().toLowerCase().includes(searchQuery)
+        )
+          return true
+
+        if (
+          searchSelectInputValue === 'completionPercentage' &&
+          project.completionPercentage.toString().toLowerCase().includes(searchQuery)
+        )
+          return true
+
+        if (
+          searchSelectInputValue === 'revenue' &&
+          project.revenue.toString().toLowerCase().includes(searchQuery)
+        )
+          return true
+        if (
+          searchSelectInputValue === 'profit' &&
+          project.profit.toString().toLowerCase().includes(searchQuery)
+        )
+          return true
+        if (
+          searchSelectInputValue === 'spentCost' &&
+          project.spentCost.toString().toLowerCase().includes(searchQuery)
+        )
+          return true
+        if (
+          searchSelectInputValue === 'status' &&
+          project.status.toLowerCase().includes(searchQuery)
+        )
+          return true
+        if (
+          searchSelectInputValue === 'streetAddress' &&
+          project.address.streetAddress.toString().toLowerCase().includes(searchQuery)
+        )
+          return true
+        if (
+          searchSelectInputValue === 'country' &&
+          project.address.country.toString().toLowerCase().includes(searchQuery)
+        )
+          return true
+        if (
+          searchSelectInputValue === 'zipCode' &&
+          project.address.zipCode.toLowerCase().includes(searchQuery)
+        )
+          return true
+      } else return true
+      return false
+    }
+
     return (
       <>
-        <CCard className="mb-3">
-          <CCardBody className="d-flex">
-            <CFormInput
-              type="text"
-              className="searchProjectsInput"
-              placeholder="Search Projects by fields"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
-            />
-          </CCardBody>
-        </CCard>
+        <div className="d-flex">
+          <CCard className="mb-3 me-3">
+            <CCardHeader>Filtering Projects</CCardHeader>
+            <CCardBody className="d-flex">
+              <CFormSelect
+                aria-label="Select filter field for projects"
+                options={filterSelectOptions}
+                className="searchProjectsSelect"
+                onChange={HandleSearchSelectChange}
+                value={searchSelectInputValue}
+              />
+              <CFormInput
+                type="text"
+                className="searchProjectsInput"
+                placeholder="Search field"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
+              />
+            </CCardBody>
+          </CCard>
+          <CCard className="mb-3">
+            <CCardHeader>Sorting Projects</CCardHeader>
+            <CCardBody className="d-flex">
+              <CFormSelect
+                aria-label="Select filter field for projects"
+                options={filterSelectOptions}
+                className="searchProjectsSelect"
+                onChange={HandleSearchSelectChange}
+                value={searchSelectInputValue}
+              />
+              <CFormInput
+                type="text"
+                className="searchProjectsInput"
+                placeholder="Search field"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
+              />
+            </CCardBody>
+          </CCard>
+        </div>
         {filteredProject.length > 0
-          ? filteredProject
-              .filter((project) => {
-                if (searchQuery.length > 0) {
-                  if (project.name.toLowerCase().includes(searchQuery)) return true
-                  if (project.description.toLowerCase().includes(searchQuery)) return true
-                  if (project.area.toString().toLowerCase().includes(searchQuery)) return true
-                  if (project.estimatedCost.toString().toLowerCase().includes(searchQuery))
-                    return true
-                  if (project.estimatedNumberOfDays.toString().toLowerCase().includes(searchQuery))
-                    return true
-                  if (project.spentNumberOfDays.toString().toLowerCase().includes(searchQuery))
-                    return true
-
-                  if (project.completionPercentage.toString().toLowerCase().includes(searchQuery))
-                    return true
-
-                  if (project.revenue.toString().toLowerCase().includes(searchQuery)) return true
-                  if (project.profit.toString().toLowerCase().includes(searchQuery)) return true
-                  if (project.spentCost.toString().toLowerCase().includes(searchQuery)) return true
-                  if (project.status.toLowerCase().includes(searchQuery)) return true
-                  if (project.address.streetAddress.toString().toLowerCase().includes(searchQuery))
-                    return true
-                  if (project.address.country.toString().toLowerCase().includes(searchQuery))
-                    return true
-                  if (project.address.zipCode.toLowerCase().includes(searchQuery)) return true
-                } else return true
-                return false
-              })
-              .map((project, key) => (
-                <CCard
-                  className="mb-3 pointer-cursor"
-                  key={key}
-                  onClick={() => showProject(project)}
+          ? filteredProject.filter(projectsQueryFilter).map((project, key) => (
+              <CCard className="mb-3" key={key}>
+                <CCardHeader
+                  className={`${
+                    state.currentProject?._id?.toString() === project._id.toString()
+                      ? 'border border-danger'
+                      : ''
+                  }`}
                 >
-                  {/* <CCardImage orientation="top" src={completedProject} /> */}
-                  <CCardHeader
-                    className={`${
-                      state.currentProject?._id?.toString() === project._id.toString()
-                        ? 'border border-danger'
-                        : ''
-                    }`}
-                  >
-                    {project.name}
-                  </CCardHeader>
-                  <CCardBody>
-                    <CCardText>{project.description}</CCardText>
-                    <CTable borderless>
-                      <tr>
-                        <td>Revenue</td>
-                        <td>Rs. {project.revenue}</td>
-                      </tr>
-                      <tr>
-                        <td>Estimated Cost</td>
-                        <td>Rs. {project.estimatedCost}</td>
-                      </tr>
-                      <tr>
-                        <td>Profit</td>
-                        <td>Rs. {project.profit}</td>
-                      </tr>
-                      <tr>
-                        <td>Estimated Time</td>
-                        <td>{project.estimatedNumberOfDays} days</td>
-                      </tr>
-                      <tr>
-                        <td>Project Status</td>
-                        <td>{project.status}</td>
-                      </tr>
-                    </CTable>
-                    <div className="text-center">
-                      <CButton type="button" color="success" variant="outline">
-                        Show Details
-                      </CButton>
-                    </div>
-                  </CCardBody>
-                </CCard>
-              ))
+                  {project.name}
+                </CCardHeader>
+                <CCardBody>
+                  <CCardText>{project.description}</CCardText>
+                  <CTable borderless>
+                    <tr>
+                      <td>Revenue</td>
+                      <td>Rs. {project.revenue}</td>
+                    </tr>
+                    <tr>
+                      <td>Estimated Cost</td>
+                      <td>Rs. {project.estimatedCost}</td>
+                    </tr>
+                    <tr>
+                      <td>Profit</td>
+                      <td>Rs. {project.profit}</td>
+                    </tr>
+                    <tr>
+                      <td>Estimated Time</td>
+                      <td>{project.estimatedNumberOfDays} days</td>
+                    </tr>
+                    <tr>
+                      <td>Project Status</td>
+                      <td>{project.status}</td>
+                    </tr>
+                  </CTable>
+                  <div className="text-center">
+                    <CButton
+                      type="button"
+                      color="success"
+                      variant="outline"
+                      onClick={() => showProject(project)}
+                    >
+                      Show Details
+                    </CButton>
+                  </div>
+                </CCardBody>
+              </CCard>
+            ))
           : handleNoFilteredProjects()}
       </>
     )

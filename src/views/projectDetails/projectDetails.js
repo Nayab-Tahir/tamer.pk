@@ -17,6 +17,7 @@ import {
   CFormInput,
   CSpinner,
   CCardHeader,
+  CFormSelect,
 } from '@coreui/react'
 import { CChart } from '@coreui/react-chartjs'
 import {
@@ -59,7 +60,16 @@ const ProjectDetails = () => {
   const [showProjectDetailsModal, setShowProjectDetailsModal] = useState(false)
   const [showProjectScheduleModal, setShowProjectScheduleModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchSelectInputValue, setSearchSelectInputValue] = useState('description')
 
+  const filterSelectOptions = [
+    { label: 'Description', value: 'description' },
+    { label: 'Revenue', value: 'revenue' },
+    { label: 'Profit', value: 'profit' },
+    { label: 'Cost', value: 'cost' },
+    { label: 'Completion percentage', value: 'completionPercentage' },
+    { label: 'Number of days', value: 'numberOfDays' },
+  ]
   const getDaysList = (days) => {
     let daysList = []
     let step = 0
@@ -365,20 +375,89 @@ const ProjectDetails = () => {
     }
   }
 
+  const HandleSearchSelectChange = (event) => {
+    setSearchSelectInputValue(event.target.value)
+  }
+
+  const detailsQueryFilter = (detailTracker) => {
+    if (searchQuery.length > 0) {
+      if (
+        searchSelectInputValue === 'description' &&
+        detailTracker.description.toLowerCase().includes(searchQuery)
+      )
+        return true
+      if (
+        searchSelectInputValue === 'revenue' &&
+        detailTracker.revenue.toString().toLowerCase().includes(searchQuery)
+      )
+        return true
+      if (
+        searchSelectInputValue === 'profit' &&
+        detailTracker.profit.toString().toLowerCase().includes(searchQuery)
+      )
+        return true
+      if (
+        searchSelectInputValue === 'cost' &&
+        detailTracker.cost.toString().toLowerCase().includes(searchQuery)
+      )
+        return true
+      if (
+        searchSelectInputValue === 'numberOfDays' &&
+        detailTracker.numberOfDays.toString().toLowerCase().includes(searchQuery)
+      )
+        return true
+      if (
+        searchSelectInputValue === 'completionPercentage' &&
+        detailTracker.completionPercentage.toString().toLowerCase().includes(searchQuery)
+      )
+        return true
+    } else return true
+    return false
+  }
+
   return (
     <>
+      <div className="d-flex">
+        <CCard className="mb-3 me-3">
+          <CCardHeader>Filtering Details</CCardHeader>
+          <CCardBody className="d-flex">
+            <CFormSelect
+              aria-label="Select filter field for projects"
+              options={filterSelectOptions}
+              className="searchProjectsSelect"
+              onChange={HandleSearchSelectChange}
+              value={searchSelectInputValue}
+            />
+            <CFormInput
+              type="text"
+              className="searchProjectsInput"
+              placeholder="Search field"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
+            />
+          </CCardBody>
+        </CCard>
+        <CCard className="mb-3">
+          <CCardHeader>Sorting Details</CCardHeader>
+          <CCardBody className="d-flex">
+            <CFormSelect
+              aria-label="Select filter field for projects"
+              options={filterSelectOptions}
+              className="searchProjectsSelect"
+              onChange={HandleSearchSelectChange}
+              value={searchSelectInputValue}
+            />
+            <CFormInput
+              type="text"
+              className="searchProjectsInput"
+              placeholder="Search field"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
+            />
+          </CCardBody>
+        </CCard>
+      </div>
       <CCard className="mb-3">
-        <CCardBody className="d-flex">
-          <CFormInput
-            type="text"
-            className="searchProjectsInput"
-            placeholder="Search Details by fields"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
-          />
-        </CCardBody>
-      </CCard>
-      <CCard className="mb-3 pointer-cursor" onClick={() => setShowProjectDetailsModal(true)}>
         {/* <CCardImage orientation="top" src={completedProject} /> */}
         <CCardHeader>{state.currentProject.name}</CCardHeader>
         <CCardBody className="position-relative">
@@ -442,7 +521,12 @@ const ProjectDetails = () => {
                 Add Progress Details
               </CButton>
             )}
-            <CButton type="button" color="secondary" variant="outline">
+            <CButton
+              type="button"
+              color="secondary"
+              variant="outline"
+              onClick={() => setShowProjectDetailsModal(true)}
+            >
               Show Details
             </CButton>
           </div>
@@ -583,37 +667,15 @@ const ProjectDetails = () => {
             <CCard>
               <CCardHeader>Details</CCardHeader>
               <CCardBody>
-                {detailTrackers
-                  .filter((detailTracker) => {
-                    if (searchQuery.length > 0) {
-                      if (detailTracker.description.toLowerCase().includes(searchQuery)) return true
-                      if (detailTracker.revenue.toString().toLowerCase().includes(searchQuery))
-                        return true
-                      if (detailTracker.profit.toString().toLowerCase().includes(searchQuery))
-                        return true
-                      if (detailTracker.cost.toString().toLowerCase().includes(searchQuery))
-                        return true
-                      if (detailTracker.numberOfDays.toString().toLowerCase().includes(searchQuery))
-                        return true
-                      if (
-                        detailTracker.completionPercentage
-                          .toString()
-                          .toLowerCase()
-                          .includes(searchQuery)
-                      )
-                        return true
-                    } else return true
-                    return false
-                  })
-                  .map((detailTracker, index) => (
-                    <DetailTracker
-                      key={index}
-                      detailTracker={detailTracker}
-                      onUpdate={handleUpdateDetailTracker}
-                      onDelete={handleDeleteDetailTracker}
-                      onClick={() => handleClickDetailTracker(detailTracker)}
-                    />
-                  ))}
+                {detailTrackers.filter(detailsQueryFilter).map((detailTracker, index) => (
+                  <DetailTracker
+                    key={index}
+                    detailTracker={detailTracker}
+                    onUpdate={handleUpdateDetailTracker}
+                    onDelete={handleDeleteDetailTracker}
+                    onClick={() => handleClickDetailTracker(detailTracker)}
+                  />
+                ))}
               </CCardBody>
             </CCard>
           )}

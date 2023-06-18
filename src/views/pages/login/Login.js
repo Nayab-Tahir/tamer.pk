@@ -49,6 +49,7 @@ const Login = () => {
         toast.success('Logged In.')
       }
     } catch (error) {
+      toast.error(`${error.data?.message}`)
       console.error('LOGIN(): ', error)
     }
     dispatch(setLoading(false))
