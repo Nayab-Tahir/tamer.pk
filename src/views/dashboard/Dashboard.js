@@ -130,7 +130,7 @@ const Dashboard = () => {
         </CCardHeader>
 
         <CCardBody>
-          <CRow>
+          {/* <CRow>
             <CCol sm={3}></CCol>
             <CCol sm={3}>
               <h5>Total Projects:</h5>
@@ -143,20 +143,44 @@ const Dashboard = () => {
               <h5>{cmPs}</h5>
               <h5>{rnPs}</h5>
             </CCol>
+          </CRow> */}
+          <CRow>
+            <CCol className="text-center">
+              <h5>Total Projects:</h5>
+            </CCol>
+            <CCol className="text-center">
+              <h5>{rnPs + cmPs}</h5>
+            </CCol>
           </CRow>
-          <CRow className="mx-5 px-5">
+          <CRow>
+            <CCol className="text-center">
+              <h5>Completed Projects:</h5>
+            </CCol>
+            <CCol className="text-center">
+              <h5>{cmPs}</h5>
+            </CCol>
+          </CRow>
+          <CRow>
+            <CCol className="text-center">
+              <h5>Running Projects:</h5>
+            </CCol>
+            <CCol className="text-center">
+              <h5>{rnPs}</h5>
+            </CCol>
+          </CRow>
+          <CRow>
             <div className="text-center mt-2">
               <h5>
                 Completion ({Math.round((rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs || 1))}%)
               </h5>
             </div>
-            <div className="px-5">
+            <div>
               <CProgress
-                className="mb-3 mx-5 px-0"
+                className="mb-3 px-0 w-50 m-auto"
                 color="success"
                 value={Math.round((rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs || 1))}
               >
-                {Math.round((rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs))}%
+                {Math.round((rnPer * rnPs + cmPer * cmPs) / (rnPs + cmPs || 1))}%
               </CProgress>
             </div>
           </CRow>

@@ -431,38 +431,38 @@ const ProjectDetails = () => {
   return (
     <>
       <div className="d-flex">
-        <CCard className="mb-3 me-3">
+        <CCard className="mb-3 me-3 w-50">
           <CCardHeader>Filtering Details</CCardHeader>
           <CCardBody className="d-flex">
             <CFormSelect
               aria-label="Select filter field for projects"
               options={filterSelectOptions}
-              className="searchProjectsSelect"
+              className="searchProjectsSelect w-50"
               onChange={HandleSearchSelectChange}
               value={searchSelectInputValue}
             />
             <CFormInput
               type="text"
-              className="searchProjectsInput"
+              className="searchProjectsInput w-50"
               placeholder="Search field"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
             />
           </CCardBody>
         </CCard>
-        <CCard className="mb-3">
+        <CCard className="mb-3 w-50">
           <CCardHeader>Sorting Details</CCardHeader>
           <CCardBody className="d-flex">
             <CFormSelect
               aria-label="Select filter field for projects"
               options={filterSelectOptions}
-              className="searchProjectsSelect"
+              className="searchProjectsSelect w-50"
               onChange={HandleSearchSelectChange}
               value={searchSelectInputValue}
             />
             <CFormInput
               type="text"
-              className="searchProjectsInput"
+              className="searchProjectsInput w-50"
               placeholder="Search field"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
@@ -677,7 +677,7 @@ const ProjectDetails = () => {
             </CModalBody>
           </CModal>
           {paginatedDetailsTracker && paginatedDetailsTracker.length > 0 && (
-            <CCard>
+            <CCard className="mb-3">
               <CCardHeader>Details</CCardHeader>
               <CCardBody>
                 {paginatedDetailsTracker.map((detailTracker, index) => (
