@@ -379,7 +379,7 @@ const Projects = ({ status }) => {
                   {project.name}
                 </CCardHeader>
                 <CCardBody>
-                  <CCardText>{project.description}</CCardText>
+                  <CCardText className="descriptionWidth">{project.description}</CCardText>
                   <CTable borderless>
                     <tr>
                       <td>Revenue</td>

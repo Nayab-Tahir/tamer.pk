@@ -323,6 +323,10 @@ const ProjectDetails = () => {
         return
       }
     }
+    if (values.completionPercentage < 1) {
+      toast.error('Completion percentage must be greater than 1!')
+      return
+    }
     dispatch(setLoading(true))
     try {
       let response = {}
@@ -595,7 +599,7 @@ const ProjectDetails = () => {
         {/* <CCardImage orientation="top" src={completedProject} /> */}
         <CCardHeader>{state.currentProject.name}</CCardHeader>
         <CCardBody className="position-relative">
-          <CCardTitle>{state.currentProject.description}</CCardTitle>
+          <CCardTitle className="descriptionWidth">{state.currentProject.description}</CCardTitle>
           <CIcon
             icon={cilTrash}
             height={20}
