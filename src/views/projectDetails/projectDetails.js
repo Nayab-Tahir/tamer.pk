@@ -544,7 +544,7 @@ const ProjectDetails = () => {
             />
             <CFormInput
               type="text"
-              placeholder="Search field"
+              placeholder="Search"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value.toLowerCase())}
             />

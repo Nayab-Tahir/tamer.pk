@@ -9,7 +9,7 @@ const DetailTracker = ({ detailTracker, onClick, onUpdate, onDelete }) => {
     <>
       <CCard className="mb-3 pointer-cursor" onClick={onClick}>
         <CCardBody className="position-relative">
-          <CCardTitle>{detailTracker.description}</CCardTitle>
+          <CCardTitle className="descriptionWidth">{detailTracker.description}</CCardTitle>
           <CIcon
             icon={cilTrash}
             height={20}
